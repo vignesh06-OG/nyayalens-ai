@@ -6,6 +6,7 @@ import {
   Gavel,
   GitBranch,
   GitCompare,
+  Handshake,
   MessageSquare,
   Scale,
   type LucideIcon,
@@ -73,6 +74,15 @@ const features: readonly FeatureCard[] = [
     title: "Contract Comparator",
     description:
       "Diff two versions or two jurisdictions clause by clause, with materiality explained in plain words.",
+    span: "",
+  },
+  {
+    id: "multi-agent-negotiation",
+    icon: Handshake,
+    accent: "rose",
+    title: "Multi-Agent Negotiation",
+    description:
+      "Three AI agents — Party A, Party B, and a Mediator — debate your contract for three rounds and settle on statute-grounded redlines you can download.",
     span: "",
   },
 ] as const;
@@ -211,9 +221,9 @@ export default function HeroSection() {
 
           {/* Animated metrics row — counters count up on scroll */}
           <div className="rise rise-5 mt-6 flex flex-col items-center gap-6 border-t border-white/10 pt-8 sm:flex-row sm:gap-0">
-            <Metric value={8} label="GenAI prompt chains" tone="blue" className="sm:px-8" />
+            <Metric value={10} label="GenAI prompt chains" tone="blue" className="sm:px-8" />
             <span aria-hidden="true" className="hidden h-10 w-px bg-white/10 sm:block" />
-            <Metric value={5} label="Analysis Modes" tone="cyan" className="sm:px-8" />
+            <Metric value={6} label="Analysis Modes" tone="cyan" className="sm:px-8" />
             <span aria-hidden="true" className="hidden h-10 w-px bg-white/10 sm:block" />
             <div className="flex flex-col items-center gap-1 sm:px-8">
               <div className="text-2xl font-semibold tracking-tight text-emerald-300 drop-shadow-[0_0_18px_rgba(16,185,129,0.35)] md:text-3xl">
@@ -238,7 +248,7 @@ export default function HeroSection() {
               Interrogate from <span className="text-bc">every angle</span>
             </>
           }
-          description="Five GenAI instruments that red-team, simulate, simplify, and operationalise any legal document."
+          description="Six GenAI instruments that red-team, simulate, simplify, operationalise, compare, and negotiate any legal document."
         />
 
         <div className="mt-14 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">

@@ -7,7 +7,7 @@ import { Skeleton } from "@/components/ui/Skeleton";
 import type { AnalysisSectionResult } from "./AdversarialAnalysis";
 
 /**
- * Engine workbench — typed parent of the five interactive sections.
+ * Engine workbench — typed parent of the six interactive sections.
  * Sections are client-side code-split (server-side dynamic() would not split)
  * while still SSR-rendering their copy; spacers prevent CLS while chunks load.
  */
@@ -26,10 +26,14 @@ const ActionKitSection = dynamic(() => import("./ActionKit"), {
 const ComparatorSection = dynamic(() => import("./Comparator"), {
   loading: () => <Skeleton className="mx-auto my-24 h-64 max-w-6xl" />,
 });
+const NegotiationSection = dynamic(() => import("./NegotiationMatrix"), {
+  loading: () => <Skeleton className="mx-auto my-24 h-64 max-w-6xl" />,
+});
 
 /**
- * Lifts the adversarial analysis result so the Action Kit can build from it
- * and the Simulator can run against the registered contract id.
+ * Lifts the adversarial analysis result so the Action Kit and Negotiation
+ * can build from it and the Simulator can run against the registered
+ * contract id.
  */
 export default function Workspace() {
   const [analysis, setAnalysis] = useState<AnalysisSectionResult | null>(null);
@@ -51,6 +55,7 @@ export default function Workspace() {
       <PlainLanguageSection />
       <ActionKitSection analysis={analysis} />
       <ComparatorSection />
+      <NegotiationSection analysis={analysis} />
     </div>
   );
 }
