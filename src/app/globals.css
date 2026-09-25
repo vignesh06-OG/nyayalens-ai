@@ -1,0 +1,455 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ------------------------------------------------------------------ */
+/* Base                                                                */
+/* ------------------------------------------------------------------ */
+
+:root {
+  --spot-x: 50vw;
+  --spot-y: 38vh;
+  --noise-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E");
+}
+
+@layer base {
+  html {
+    background-color: #020617; /* slate-950 */
+  }
+
+  body {
+    @apply bg-slate-950 font-sans text-slate-300 antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  ::selection {
+    background-color: rgba(59, 130, 246, 0.35);
+    color: #f8fafc;
+  }
+
+  :focus-visible {
+    outline: 2px solid rgba(96, 165, 250, 0.9);
+    outline-offset: 2px;
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #020617;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: rgba(148, 163, 184, 0.25);
+    border-radius: 8px;
+    border: 2px solid #020617;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(148, 163, 184, 0.4);
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Lenis smooth scroll                                                 */
+/* ------------------------------------------------------------------ */
+
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+.lenis.lenis-smooth iframe {
+  pointer-events: none;
+}
+
+/* ------------------------------------------------------------------ */
+/* Typography                                                          */
+/* ------------------------------------------------------------------ */
+
+@layer utilities {
+  .font-serif-accent {
+    font-family: theme("fontFamily.serif-accent");
+  }
+
+  /* blue-400 → cyan-400 gradient (hero line 2, section accents). */
+  .text-bc {
+    background-image: linear-gradient(90deg, #60a5fa 0%, #22d3ee 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  /* Spectral gradient used on serif accents. */
+  .text-prism {
+    background-image: linear-gradient(
+      100deg,
+      #93c5fd 0%,
+      #3b82f6 28%,
+      #f59e0b 62%,
+      #34d399 100%
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .text-frost {
+    background-image: linear-gradient(180deg, #f8fafc 20%, #94a3b8 120%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Glass + neon                                                        */
+/* ------------------------------------------------------------------ */
+
+@layer utilities {
+  .glass {
+    @apply rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl;
+  }
+
+  .neon-ring {
+    box-shadow:
+      0 0 0 1px rgba(147, 197, 253, 0.35) inset,
+      0 0 32px -8px rgba(59, 130, 246, 0.45);
+  }
+
+  .neon-ring-amber {
+    box-shadow:
+      0 0 0 1px rgba(252, 211, 77, 0.3) inset,
+      0 0 32px -8px rgba(245, 158, 11, 0.4);
+  }
+
+  .neon-ring-emerald {
+    box-shadow:
+      0 0 0 1px rgba(110, 231, 183, 0.3) inset,
+      0 0 32px -8px rgba(16, 185, 129, 0.4);
+  }
+
+  .neon-ring-rose {
+    box-shadow:
+      0 0 0 1px rgba(251, 207, 232, 0.28) inset,
+      0 0 32px -8px rgba(244, 63, 94, 0.4);
+  }
+
+  .neon-edge {
+    position: relative;
+  }
+  .neon-edge::before {
+    content: "";
+    position: absolute;
+    inset: -1px;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(
+      120deg,
+      rgba(59, 130, 246, 0.65),
+      rgba(245, 158, 11, 0.35) 45%,
+      rgba(16, 185, 129, 0.55)
+    );
+    -webkit-mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* 3D tilt cards — perspective 1000px container, JS-fed rotation vars   */
+/* (rotateX/rotateY from pointer position, max 5deg, transform .3s)    */
+/* ------------------------------------------------------------------ */
+
+@layer utilities {
+  .tilt {
+    perspective: 1000px;
+  }
+  .tilt-inner {
+    transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+    transform-style: preserve-3d;
+    transition:
+      transform 0.3s ease,
+      box-shadow 0.3s ease,
+      border-color 0.3s ease;
+    will-change: transform;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Hero: mesh gradient, grid, noise, spotlight                         */
+/* ------------------------------------------------------------------ */
+
+@layer utilities {
+  .mesh-blob {
+    @apply pointer-events-none absolute rounded-full blur-[110px];
+  }
+
+  /* Animated mesh gradient — 3 colors (blue-600, purple-600, cyan-600),
+     drifting slowly. Pure CSS, zero JS. */
+  .mesh-a {
+    @apply bg-blue-600/20 animate-mesh-a;
+  }
+  .mesh-b {
+    @apply bg-purple-600/20 animate-mesh-b;
+  }
+  .mesh-c {
+    @apply bg-cyan-600/20 animate-mesh-c;
+  }
+  .mesh-d {
+    @apply bg-rose-600/20 animate-mesh-d;
+  }
+
+  /* Blueprint grid that fades out at the edges. */
+  .grid-fade {
+    background-image:
+      linear-gradient(to right, rgba(148, 163, 184, 0.08) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(148, 163, 184, 0.08) 1px, transparent 1px);
+    background-size: 44px 44px;
+    -webkit-mask-image: radial-gradient(ellipse 90% 70% at 50% 30%, #000 30%, transparent 75%);
+    mask-image: radial-gradient(ellipse 90% 70% at 50% 30%, #000 30%, transparent 75%);
+  }
+
+  .noise {
+    background-image: var(--noise-image);
+    background-repeat: repeat;
+    opacity: 0.035;
+    mix-blend-mode: overlay;
+  }
+
+  /* Cursor spotlight: a pre-rendered radial glow moved with translate3d
+     (GPU-composited). Vars are fed by rAF-throttled JS — gradient pixels
+     are never recomputed. Disabled on touch devices (no pointer updates). */
+  .spotlight-glow {
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: 1;
+    width: 900px;
+    height: 900px;
+    margin-left: -450px;
+    margin-top: -450px;
+    pointer-events: none;
+    will-change: transform;
+    transform: translate3d(var(--spot-x, 50vw), var(--spot-y, 38vh), 0);
+    background: radial-gradient(
+      circle,
+      rgba(96, 165, 250, 0.16) 0%,
+      rgba(34, 211, 238, 0.07) 38%,
+      transparent 65%
+    );
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Entrance staggers (CSS-only, used in hero)                          */
+/* ------------------------------------------------------------------ */
+
+@layer utilities {
+  .rise {
+    animation: rise 0.85s cubic-bezier(0.21, 0.65, 0.32, 0.9) both;
+  }
+  .rise-1 { animation-delay: 60ms; }
+  .rise-2 { animation-delay: 160ms; }
+  .rise-3 { animation-delay: 260ms; }
+  .rise-4 { animation-delay: 360ms; }
+  .rise-5 { animation-delay: 460ms; }
+}
+
+/* ------------------------------------------------------------------ */
+/* Marquee — CSS only, two rows in opposite directions                 */
+/* ------------------------------------------------------------------ */
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@layer utilities {
+  .marquee-mask {
+    -webkit-mask-image: linear-gradient(to right, transparent, #000 12%, #000 88%, transparent);
+    mask-image: linear-gradient(to right, transparent, #000 12%, #000 88%, transparent);
+  }
+  .marquee-track {
+    display: flex;
+    width: max-content;
+    animation: marquee 45s linear infinite;
+  }
+  .marquee-track-reverse {
+    display: flex;
+    width: max-content;
+    animation: marquee 45s linear infinite reverse;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* SVG helpers                                                         */
+/* ------------------------------------------------------------------ */
+
+@layer utilities {
+  .svg-spin {
+    transform-origin: center;
+    transform-box: fill-box;
+    animation: spin-slow 48s linear infinite;
+  }
+  .svg-spin-reverse {
+    transform-origin: center;
+    transform-box: fill-box;
+    animation: spin-slow 64s linear infinite reverse;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Scroll reveals (framer-motion takes over once its chunk resolves)    */
+/* ------------------------------------------------------------------ */
+
+@layer utilities {
+  .reveal-pending {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Skeleton shimmer                                                    */
+/* ------------------------------------------------------------------ */
+
+@layer utilities {
+  .skeleton {
+    background: linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.06) 25%,
+      rgba(255, 255, 255, 0.14) 50%,
+      rgba(255, 255, 255, 0.06) 75%
+    );
+    background-size: 200% 100%;
+    animation: skeleton-shimmer 1.6s ease-in-out infinite;
+  }
+  .progress-track {
+    @apply h-1.5 w-full overflow-hidden rounded-full bg-white/10;
+  }
+  .progress-bar {
+    @apply h-full w-full rounded-full;
+    background: linear-gradient(90deg, #3b82f6, #22d3ee, #a855f7, #3b82f6);
+    background-size: 300% 100%;
+    animation: border-shift 1.6s linear infinite;
+  }
+}
+
+@keyframes skeleton-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Magic-UI-style animated gradient border                             */
+/* ------------------------------------------------------------------ */
+
+@layer utilities {
+  .magic-border {
+    position: relative;
+  }
+  .magic-border::before {
+    content: "";
+    position: absolute;
+    inset: -1px;
+    z-index: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(90deg, #3b82f6, #22d3ee, #a855f7, #f59e0b, #3b82f6);
+    background-size: 300% 100%;
+    animation: border-shift 4s linear infinite;
+    -webkit-mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+}
+
+@keyframes border-shift {
+  to {
+    background-position: 300% 0;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Risk gauge (conic-gradient, no chart library)                       */
+/* ------------------------------------------------------------------ */
+
+@layer utilities {
+  .risk-gauge {
+    background: conic-gradient(
+      var(--gauge-color, #3b82f6) calc(var(--gauge-pct, 0) * 3.6deg),
+      rgba(148, 163, 184, 0.15) 0
+    );
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Obligation timeline (flexbox dots + connectors)                     */
+/* ------------------------------------------------------------------ */
+
+@layer utilities {
+  .timeline-dot {
+    @apply relative z-10 h-3 w-3 shrink-0 rounded-full;
+  }
+  .timeline-line {
+    @apply h-px flex-1 bg-white/15;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Blinking streaming caret                                            */
+/* ------------------------------------------------------------------ */
+
+@layer utilities {
+  .stream-caret::after {
+    content: "▍";
+    margin-left: 1px;
+    color: #60a5fa;
+    animation: glow-pulse 1s ease-in-out infinite;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Reduced motion: kill every animation and transition                 */
+/* ------------------------------------------------------------------ */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    animation-delay: 0ms !important;
+    transition-duration: 0.001ms !important;
+    transition-delay: 0ms !important;
+    scroll-behavior: auto !important;
+  }
+  .reveal-pending {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  .tilt-inner {
+    transform: none !important;
+  }
+}
