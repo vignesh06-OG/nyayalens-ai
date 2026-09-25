@@ -4,7 +4,7 @@
 
 NyayaLens AI is a GenAI legal-intelligence workbench: adversarial dual-perspective contract analysis, a what-if scenario simulator, plain-language refracting (EN/HI), an action kit (negotiation points, redlines, lawyer prep sheet), and a clause-level comparator — every AI surface backed by deterministic rule engines with graceful fallback.
 
-**Deploy:** https://nyayalens-ai.vercel.app · **Repo pages:** [/quality](/quality) · [/architecture](/architecture) · [/challenge-alignment](/challenge-alignment)
+**Deploy:** https://nyayalens-ai-self.vercel.app · **Repo pages:** [/quality](/quality) · [/architecture](/architecture) · [/challenge-alignment](/challenge-alignment)
 
 ## Setup
 

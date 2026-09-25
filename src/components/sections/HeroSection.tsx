@@ -197,8 +197,9 @@ export default function HeroSection() {
           </h1>
 
           <p className="rise rise-3 max-w-2xl text-base leading-relaxed text-slate-400 md:text-lg">
-            Upload any legal document. Get dual-perspective analysis, risk heatmaps, what-if
-            simulations, and ready-to-use action kits — powered by GenAI.
+            Upload any legal document — contract, lease, NDA, or terms of service. GenAI surfaces
+            the clauses that matter, maps your risks and obligations from both sides of the table,
+            and returns a risk heatmap, what-if simulations, and ready-to-use action kits.
           </p>
 
           <div className="rise rise-4 flex flex-wrap items-center justify-center gap-4">
@@ -206,18 +207,11 @@ export default function HeroSection() {
               Analyze Document Now
               <ArrowRight className="h-4 w-4" aria-hidden="true" />
             </Button>
-            <Button
-              variant="ghost"
-              size="lg"
-              className="border border-white/20 hover:border-white/40 hover:bg-white/5"
-            >
-              Watch Demo
-            </Button>
           </div>
 
           {/* Animated metrics row — counters count up on scroll */}
           <div className="rise rise-5 mt-6 flex flex-col items-center gap-6 border-t border-white/10 pt-8 sm:flex-row sm:gap-0">
-            <Metric value={16} label="GenAI Engines" tone="blue" className="sm:px-8" />
+            <Metric value={8} label="GenAI prompt chains" tone="blue" className="sm:px-8" />
             <span aria-hidden="true" className="hidden h-10 w-px bg-white/10 sm:block" />
             <Metric value={5} label="Analysis Modes" tone="cyan" className="sm:px-8" />
             <span aria-hidden="true" className="hidden h-10 w-px bg-white/10 sm:block" />

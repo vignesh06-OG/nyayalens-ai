@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 
-const BASE = "https://nyayalens-ai.vercel.app";
+const BASE = "https://nyayalens-ai-self.vercel.app";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date();

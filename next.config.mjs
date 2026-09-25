@@ -1,4 +1,15 @@
 /** @type {import('next').NextConfig} */
+
+// CSP rationale (see SECURITY.md):
+// - Production never allows 'unsafe-eval'. Development keeps it because the
+//   webpack HMR runtime evaluates generated module code.
+// - 'unsafe-inline' for script-src stays: the Next.js App Router inlines
+//   flight-data bootstrap scripts and this app does not run nonce middleware.
+const isDev = process.env.NODE_ENV !== "production";
+const scriptSrc = isDev
+  ? "script-src 'self' 'unsafe-inline' 'unsafe-eval'"
+  : "script-src 'self' 'unsafe-inline'";
+
 const nextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
@@ -9,8 +20,7 @@ const nextConfig = {
         headers: [
           {
             key: "Content-Security-Policy",
-            value:
-              "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self' https://api.openai.com;",
+            value: `default-src 'self'; ${scriptSrc}; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self' https://api.openai.com;`,
           },
           {
             key: "Strict-Transport-Security",

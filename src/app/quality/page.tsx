@@ -93,8 +93,8 @@ export default function QualityPage() {
           <p className="text-sm text-slate-400">First Load JS on / — budget &lt; 120 kB gzip, sections code-split</p>
         </Card>
         <Card title="Lighthouse">
-          <p className="text-4xl font-bold text-emerald-300">95+ all</p>
-          <p className="text-sm text-slate-400">Performance / Accessibility / Best Practices / SEO targets on production deploy</p>
+          <p className="text-4xl font-bold text-amber-300">Target 95+</p>
+          <p className="text-sm text-slate-400">Not measured in this environment — the budget inputs are: 101 kB First Load JS, static prerender, zero external assets (see EVALUATION.md)</p>
         </Card>
         <Card title="QA Checklist">
           <p className="text-2xl font-bold text-emerald-300">✅ All items checked</p>
