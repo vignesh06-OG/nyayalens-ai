@@ -70,9 +70,16 @@ describe("StreamRequestSchema", () => {
     expect(StreamRequestSchema.safeParse({ mode: "email" }).success).toBe(false);
   });
 
-  it("lists exactly five completion modes", () => {
-    expect(COMPLETION_MODES).toHaveLength(5);
-    expect([...COMPLETION_MODES]).toEqual(["analysis", "simulate", "simplify", "compare", "email"]);
+  it("lists exactly six completion modes", () => {
+    expect(COMPLETION_MODES).toHaveLength(6);
+    expect([...COMPLETION_MODES]).toEqual([
+      "analysis",
+      "simulate",
+      "simplify",
+      "compare",
+      "email",
+      "negotiate",
+    ]);
   });
 });
 

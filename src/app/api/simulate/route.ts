@@ -1,5 +1,6 @@
 import { FALLBACK_MESSAGE } from "@/lib/ai/fallback";
-import { runRuleSimulation, simulateWithAiStream } from "@/lib/ai/provider";
+import { runRuleSimulation } from "@/lib/ai/provider";
+import { simulateWithAiStream } from "@/lib/ai/streaming";
 import { getContract } from "@/lib/contractStore";
 import { jsonError, jsonOk } from "@/lib/http";
 import { checkRateLimit, clientKey } from "@/lib/security/rateLimit";

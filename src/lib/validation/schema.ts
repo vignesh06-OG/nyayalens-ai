@@ -35,11 +35,17 @@ export const ActionsInputSchema = z.object({
   documentType: DocumentTypeSchema,
 });
 
+export const NegotiateInputSchema = z.object({
+  contractId: z.string().min(1).max(200),
+  userGoal: z.string().min(5).max(500),
+});
+
 export type AnalyzeInput = z.infer<typeof AnalyzeInputSchema>;
 export type SimulateInput = z.infer<typeof SimulateInputSchema>;
 export type SimplifyInput = z.infer<typeof SimplifyInputSchema>;
 export type CompareInput = z.infer<typeof CompareInputSchema>;
 export type ActionsInput = z.infer<typeof ActionsInputSchema>;
+export type NegotiateInput = z.infer<typeof NegotiateInputSchema>;
 
 /* ------------------------------------------------------------------ */
 /* AI output schemas (generateObject contracts)                        */
@@ -77,17 +83,31 @@ export const AiCompareOutputSchema = z.object({
   materiality: z.array(z.string()),
 });
 
+export const AiNegotiationTurnSchema = z.object({
+  partyAPosition: z.string().min(1).max(600),
+  partyBPosition: z.string().min(1).max(600),
+  mediatorGap: z.string().min(1).max(400),
+  mediatorSuggestion: z.string().min(1).max(400),
+});
+
+export const AiNegotiationOutputSchema = z.object({
+  rounds: z.array(AiNegotiationTurnSchema).length(3),
+  finalSummary: z.string().min(1).max(600),
+});
+
 export type AiAnalysisOutput = z.infer<typeof AiAnalysisOutputSchema>;
 export type AiClauseInsight = z.infer<typeof AiClauseInsightSchema>;
 export type AiObligation = z.infer<typeof AiObligationSchema>;
 export type AiSimplifyOutput = z.infer<typeof AiSimplifyOutputSchema>;
 export type AiCompareOutput = z.infer<typeof AiCompareOutputSchema>;
+export type AiNegotiationOutput = z.infer<typeof AiNegotiationOutputSchema>;
+export type AiNegotiationTurn = z.infer<typeof AiNegotiationTurnSchema>;
 
 /* ------------------------------------------------------------------ */
 /* Streaming completion contracts (useChat / useCompletion)            */
 /* ------------------------------------------------------------------ */
 
-export const COMPLETION_MODES = ["analysis", "simulate", "simplify", "compare", "email"] as const;
+export const COMPLETION_MODES = ["analysis", "simulate", "simplify", "compare", "email", "negotiate"] as const;
 export type CompletionMode = (typeof COMPLETION_MODES)[number];
 
 const completionExtras = {

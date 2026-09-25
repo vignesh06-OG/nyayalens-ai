@@ -2,11 +2,14 @@ import { describe, expect, it } from "vitest";
 
 import {
   ANALYSIS_MARKERS,
+  NEGOTIATION_MARKERS,
   SIM_CARD_MARKERS,
   buildAnalysisNarrativePrompt,
   buildAnalyzePrompt,
   buildComparePrompt,
   buildEmailPrompt,
+  buildNegotiationNarrativePrompt,
+  buildNegotiationPrompt,
   buildSimplifyPrompt,
   buildSimplifyStreamPrompt,
   buildSimulationCardsPrompt,
@@ -88,5 +91,36 @@ describe("prompt builders", () => {
     expect(bundle.system.toLowerCase()).toContain("professional");
     expect(bundle.system.toLowerCase()).toContain("email");
     expect(bundle.prompt).toContain("negotiation context");
+  });
+});
+
+describe("negotiation prompts (Engine 06)", () => {
+  it("pins the three negotiation markers used by the UI splitter", () => {
+    expect(NEGOTIATION_MARKERS.rounds).toBe("🔄 NEGOTIATION ROUNDS:");
+    expect(NEGOTIATION_MARKERS.redline).toBe("📝 FINAL REDLINE:");
+    expect(NEGOTIATION_MARKERS.verdict).toBe("⚖️ MEDIATOR VERDICT:");
+  });
+
+  it("buildNegotiationPrompt voices three agents and grounds in the legal DB", () => {
+    const bundle = buildNegotiationPrompt(contract, "Reduce the deposit to one month");
+    expect(bundle.system).toContain("PARTY A");
+    expect(bundle.system).toContain("PARTY B");
+    expect(bundle.system).toContain("MEDIATOR");
+    expect(bundle.system).toContain("IRAC");
+    // Deposit goal on a rental contract must surface RERA 13 and CPA 2(47).
+    expect(bundle.system).toContain("RERA § 13");
+    expect(bundle.system).toContain("CPA § 2(47)");
+    expect(bundle.prompt).toContain("deposit");
+    expect(bundle.prompt).toContain(contract.text);
+  });
+
+  it("buildNegotiationNarrativePrompt embeds the deterministic skeleton and markers", () => {
+    const bundle = buildNegotiationNarrativePrompt(contract, "Shorten the notice period");
+    expect(bundle.system).toContain(NEGOTIATION_MARKERS.rounds);
+    expect(bundle.system).toContain(NEGOTIATION_MARKERS.redline);
+    expect(bundle.system).toContain(NEGOTIATION_MARKERS.verdict);
+    expect(bundle.prompt).toContain("Negotiation skeleton");
+    expect(bundle.prompt).toContain("convergence 30/100");
+    expect(bundle.prompt).toContain("TPA § 106");
   });
 });

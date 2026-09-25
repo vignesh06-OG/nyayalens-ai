@@ -1,5 +1,5 @@
 import { jsonError } from "@/lib/http";
-import { streamCompletion, type CompletionRequest } from "@/lib/ai/provider";
+import { streamCompletion, type CompletionRequest } from "@/lib/ai/streaming";
 import { checkRateLimit, clientKey } from "@/lib/security/rateLimit";
 import { sanitizeText } from "@/lib/security/sanitize";
 import {
