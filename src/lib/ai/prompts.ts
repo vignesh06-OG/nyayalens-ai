@@ -1,3 +1,7 @@
+import {
+  provisionsForContractKind,
+  shortCitation,
+} from "@/domain/legal/indian-provisions";
 import type { Contract, ContractKind } from "@/domain/simulation/types";
 
 /**
@@ -76,7 +80,7 @@ Plain language. State assumptions explicitly. No headers, no markdown tables —
 
 export function buildSimulationStreamPrompt(contract: Contract, scenario: string): PromptBundle {
   return {
-    system: SIMULATE_SYSTEM,
+    system: SIMULATE_SYSTEM + statutoryAnchorBlock(contract.kind),
     prompt: `Contract type: ${contract.kind}\nContract: ${contract.title}\n\nContract text:\n"""\n${contract.text.slice(0, 20000)}\n"""\n\nScenario: ${scenario}`,
   };
 }
@@ -122,9 +126,21 @@ Cite real Indian contract/statute anchors where they apply (Indian Contract Act 
 
 📊 Risk Score: <integer 0-100>/100 — <one short clause: band and why>`;
 
+/**
+ * Statutory anchor block sourced from the canonical Indian-provisions DB
+ * (src/domain/legal). Injected into law-citing prompts so the model quotes
+ * real, verified sections instead of inventing them.
+ */
+function statutoryAnchorBlock(kind: string): string {
+  const anchors = provisionsForContractKind(kind)
+    .map((provision) => `- ${shortCitation(provision)} (${provision.statute}) — ${provision.title}: ${provision.summary}`)
+    .join("\n");
+  return `\n\nStatutory anchors from the verified Indian-law database (cite ONLY where genuinely applicable, using the exact section numbers):\n${anchors}`;
+}
+
 export function buildSimulationCardsPrompt(contract: Contract, scenario: string): PromptBundle {
   return {
-    system: SIM_CARDS_SYSTEM,
+    system: SIM_CARDS_SYSTEM + statutoryAnchorBlock(contract.kind),
     prompt: `Contract type: ${contract.kind}\nContract: ${contract.title}\n\nContract text:\n"""\n${contract.text.slice(0, 16000)}\n"""\n\nScenario: ${scenario}`,
   };
 }

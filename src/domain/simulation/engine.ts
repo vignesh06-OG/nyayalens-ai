@@ -1,5 +1,7 @@
 import { assessClauseRisk, dominantDimension } from "../analysis/engine";
 import type { Clause, RiskLevel } from "../analysis/types";
+import { getProvision } from "../legal/indian-provisions";
+import { CONSEQUENCE_TEMPLATES, SCENARIO_KIND_SIGNALS } from "./templates";
 import type {
   Consequence,
   Contract,
@@ -14,15 +16,6 @@ import type {
 /* ------------------------------------------------------------------ */
 /* Pure helpers                                                        */
 /* ------------------------------------------------------------------ */
-
-const SCENARIO_KIND_SIGNALS: Readonly<Record<ScenarioKind, readonly string[]>> = {
-  breach: ["breach", "breaches", "violat", "fails to", "fails", "default", "misses", "non-performance"],
-  termination: ["terminat", "end the", "exit", "walk away", "quit", "evict"],
-  payment: ["pay", "payment", "rent", "fee", "invoice", "salary", "cost", "charge", "money"],
-  dispute: ["dispute", "sue", "court", "arbitrat", "litigat", "claim", "damages"],
-  renewal: ["renew", "extension", "extend", "rollover", "auto-renew"],
-  general: [],
-};
 
 function detectScenarioKind(scenario: string): ScenarioKind {
   const text = scenario.toLowerCase();
@@ -70,177 +63,6 @@ function matchProvisions(provisions: readonly LegalProvision[], scenario: string
     .slice(0, 3)
     .map((s) => s.provision);
 }
-
-interface ConsequenceTemplate {
-  description: string;
-  severity: RiskLevel;
-  timeHorizon: string | null;
-  mitigations: string[];
-  /** Constrain to provisions with these topics (empty = always). */
-  topics: readonly string[];
-}
-
-const CONSEQUENCE_TEMPLATES: Readonly<Record<ScenarioKind, readonly ConsequenceTemplate[]>> = {
-  breach: [
-    {
-      description: "Late fees, interest, or penalties accrue on the overdue amount.",
-      severity: "high",
-      timeHorizon: "immediate",
-      mitigations: ["Pay within the cure period", "Negotiate a cap on late fees"],
-      topics: ["payment"],
-    },
-    {
-      description: "Termination rights may be triggered against the breaching side.",
-      severity: "critical",
-      timeHorizon: "14 days",
-      mitigations: ["Cure the breach in writing before the cure window closes"],
-      topics: ["termination"],
-    },
-    {
-      description: "Indemnity and damages claims can be initiated against the breaching side.",
-      severity: "critical",
-      timeHorizon: "30 days",
-      mitigations: ["Document good-faith efforts to perform", "Cap liability at the next renewal"],
-      topics: ["liability"],
-    },
-    {
-      description: "Reputation and credit standing may be affected for future agreements.",
-      severity: "medium",
-      timeHorizon: "90 days",
-      mitigations: ["Negotiate a neutral reference clause"],
-      topics: [],
-    },
-  ],
-  termination: [
-    {
-      description: "Surviving clauses (confidentiality, indemnity) continue after termination.",
-      severity: "medium",
-      timeHorizon: "immediate",
-      mitigations: ["Negotiate a sunset on surviving obligations"],
-      topics: ["confidentiality", "liability"],
-    },
-    {
-      description: "Deposits or prepayments may be forfeited on termination.",
-      severity: "high",
-      timeHorizon: "immediate",
-      mitigations: ["Require pro-rata refund of prepayments", "Add an accounting-on-termination duty"],
-      topics: ["payment"],
-    },
-    {
-      description: "Notice-period obligations may require continued performance after the exit decision.",
-      severity: "medium",
-      timeHorizon: "30 days",
-      mitigations: ["Shorten the notice period", "Add termination for convenience with notice"],
-      topics: ["termination"],
-    },
-    {
-      description: "Transition assistance may be owed to the other side.",
-      severity: "low",
-      timeHorizon: "60 days",
-      mitigations: ["Cap transition assistance at 30 days"],
-      topics: [],
-    },
-  ],
-  payment: [
-    {
-      description: "Late-payment penalties and interest begin to accrue.",
-      severity: "high",
-      timeHorizon: "immediate",
-      mitigations: ["Invoke any grace period immediately", "Request a written payment plan"],
-      topics: ["payment"],
-    },
-    {
-      description: "Non-payment can escalate to suspension of services or possession.",
-      severity: "critical",
-      timeHorizon: "14 days",
-      mitigations: ["Document partial payments and disputes in writing"],
-      topics: ["payment", "termination"],
-    },
-    {
-      description: "Security deposit or guarantee may be applied against arrears.",
-      severity: "high",
-      timeHorizon: "30 days",
-      mitigations: ["Demand an itemised statement before set-off"],
-      topics: ["payment"],
-    },
-    {
-      description: "Credit standing with the counterparty may be affected for renewals.",
-      severity: "low",
-      timeHorizon: "90 days",
-      mitigations: ["Keep written proof of every payment"],
-      topics: [],
-    },
-  ],
-  dispute: [
-    {
-      description: "Arbitration or court proceedings may be initiated by either side.",
-      severity: "critical",
-      timeHorizon: "30 days",
-      mitigations: ["Use the contractual notice-and-cure window first", "Preserve all correspondence"],
-      topics: ["liability", "termination"],
-    },
-    {
-      description: "Legal costs and management time divert from actual work under the contract.",
-      severity: "medium",
-      timeHorizon: "immediate",
-      mitigations: ["Propose mediation before arbitration"],
-      topics: [],
-    },
-    {
-      description: "Damages exposure crystallises, including any consequential-damages waiver.",
-      severity: "high",
-      timeHorizon: "90 days",
-      mitigations: ["Quantify losses early", "Rely on liability caps where present"],
-      topics: ["liability"],
-    },
-  ],
-  renewal: [
-    {
-      description: "Auto-renewal may lock the agreement for another full term.",
-      severity: "high",
-      timeHorizon: "30 days",
-      mitigations: ["Diarise the non-renewal notice window", "Serve non-renewal notice in writing"],
-      topics: ["renewal"],
-    },
-    {
-      description: "Rent or fee escalation clauses may raise the price at renewal.",
-      severity: "medium",
-      timeHorizon: "30 days",
-      mitigations: ["Cap escalation to CPI or 5%", "Renegotiate before the notice window closes"],
-      topics: ["payment", "renewal"],
-    },
-    {
-      description: "Renewal extends surviving obligations for another cycle.",
-      severity: "low",
-      timeHorizon: "90 days",
-      mitigations: ["Refresh the terms rather than auto-renewing"],
-      topics: [],
-    },
-  ],
-  general: [
-    {
-      description: "Ambiguous wording may be interpreted against the drafting side.",
-      severity: "medium",
-      timeHorizon: "90 days",
-      mitigations: ["Clarify key terms in a side letter"],
-      topics: ["ambiguity"],
-    },
-    {
-      description: "Operational friction between the parties is the most likely near-term effect.",
-      severity: "low",
-      timeHorizon: "30 days",
-      mitigations: ["Open a written channel with the counterparty"],
-      topics: [],
-    },
-    {
-      description: "Long-term relationship value may erode without early course-correction.",
-      severity: "low",
-      timeHorizon: "180 days",
-      mitigations: ["Schedule a review meeting before tensions harden"],
-      topics: [],
-    },
-  ],
-};
 
 /** Map a clause onto a legal provision (topic = dominant risk dimension). */
 export function provisionsFromClauses(clauses: readonly Clause[]): LegalProvision[] {
@@ -396,40 +218,21 @@ export function toScenarioClauses(contract: Contract): Clause[] {
 }
 
 /* ------------------------------------------------------------------ */
-/* Statutory references (offline, deterministic)                       */
+/* Statutory references (offline, deterministic — canonical legal DB)  */
 /* ------------------------------------------------------------------ */
 
-const LAW_REFERENCES: Readonly<Record<ScenarioKind, readonly LawReference[]>> = {
-  breach: [
-    { act: "ICA", section: "§ 37", title: "Obligation of parties to perform contracts" },
-    { act: "ICA", section: "§ 73", title: "Compensation for loss or damage caused by breach" },
-    { act: "ICA", section: "§ 74", title: "Compensation for breach where a stipulated sum is named" },
-  ],
-  termination: [
-    { act: "ICA", section: "§ 39", title: "Voidable at aggrieved party's option when performance is refused" },
-    { act: "ICA", section: "§ 62", title: "Effect of novation, rescission and alteration of contract" },
-    { act: "TPA", section: "§ 108", title: "Rights and liabilities of lessor and lessee (leases)" },
-  ],
-  payment: [
-    { act: "ICA", section: "§ 37", title: "Obligation of parties to perform contracts" },
-    { act: "ICA", section: "§ 55", title: "Compensation for breach caused by default in performance" },
-    { act: "ICA", section: "§ 74", title: "Penalty and stipulated damages" },
-  ],
-  dispute: [
-    { act: "ICA", section: "§ 73", title: "Compensation for loss or damage caused by breach" },
-    { act: "BNS", section: "§ 318", title: "Cheating and dishonestly inducing delivery of property" },
-    { act: "SRA", section: "Injunctions", title: "Specific Relief Act, 1963 — injunctive relief" },
-  ],
-  renewal: [
-    { act: "ICA", section: "§ 25", title: "Agreements without consideration (nudum pactum)" },
-    { act: "ICA", section: "§ 62", title: "Effect of novation and alteration on continuing terms" },
-    { act: "TPA", section: "§ 106", title: "Leases how made — term and renewal formality" },
-  ],
-  general: [
-    { act: "ICA", section: "§ 37", title: "Obligation of parties to perform contracts" },
-    { act: "ICA", section: "§ 56", title: "Agreement to do an impossible act (frustration / force majeure)" },
-    { act: "ICA", section: "§ 23", title: "What considerations and objects are lawful" },
-  ],
+/**
+ * Scenario kind → statute ids from the canonical Indian-provisions database.
+ * Ids resolve through getProvision; an unresolved id is skipped rather than
+ * crashing the map (data and lookup stay in one place: domain/legal).
+ */
+const SCENARIO_KIND_PROVISION_IDS: Readonly<Record<ScenarioKind, readonly string[]>> = {
+  breach: ["ica-37", "ica-73", "ica-74"],
+  termination: ["ica-39", "ica-62", "tpa-108"],
+  payment: ["ica-37", "ica-55", "ica-74"],
+  dispute: ["ica-73", "bns-318", "sra-injunctions"],
+  renewal: ["ica-25", "ica-62", "tpa-106"],
+  general: ["ica-37", "ica-56", "ica-23"],
 };
 
 /** Map a scenario result to the statutory provisions that govern it. */
@@ -437,11 +240,15 @@ export function mapLawReferences(result: ScenarioResult): LawReference[] {
   const references: LawReference[] = [];
   const seen = new Set<string>();
 
-  for (const reference of LAW_REFERENCES[result.scenario.kind]) {
-    const key = `${reference.act}-${reference.section}`;
+  for (const id of SCENARIO_KIND_PROVISION_IDS[result.scenario.kind]) {
+    const provision = getProvision(id);
+    if (provision === null) {
+      continue;
+    }
+    const key = `${provision.act}-${provision.section}`;
     if (!seen.has(key)) {
       seen.add(key);
-      references.push(reference);
+      references.push({ act: provision.act, section: provision.section, title: provision.title });
     }
   }
   for (const provision of result.provisions) {
