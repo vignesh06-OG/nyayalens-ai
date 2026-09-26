@@ -61,7 +61,7 @@ export default function QualityPage() {
       <div className="mt-10 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         <Card title="Total Tests">
           <p className="text-5xl font-bold text-emerald-300">254</p>
-          <p className="text-sm text-slate-400">actual count across 23 suites (requirement: 89+)</p>
+          <p className="text-sm text-slate-400">actual count across 24 suites (requirement: 89+)</p>
         </Card>
         <Card title="Test Files">
           <p className="text-5xl font-bold text-blue-300">17</p>

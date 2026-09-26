@@ -6,7 +6,7 @@ Format: **PASS / FAIL / NOT VERIFIED** per criterion, with the exact command or 
 
 | Criterion | Status | Evidence |
 | --- | --- | --- |
-| Tests (89+ across 17+ files) | **PASS** | 254 tests / 23 suites, 100% green — `npm test` ([TESTING.md](TESTING.md)) |
+| Tests (89+ across 17+ files) | **PASS** | 254 tests / 24 suites, 100% green — `npm test` ([TESTING.md](TESTING.md)) |
 | Coverage ≥95/95/95, branches ≥90 | **PASS** | 99.06 stmts / 99.47 funcs / 99.03 lines / **94.91 branches** — `npm run test:coverage`; enforced thresholds 98/90/98/98 fail the build below them |
 | Strict production build | **PASS** | `npm run build` green — 16 routes, `tsc --noEmit` strict + `noUncheckedIndexedAccess` 0 errors, `next lint` 0 warnings |
 | Performance budget (<120 kB First Load) | **PASS** | `/` First Load JS **102 kB** in the build manifest; sections client-code-split; zero external fonts/images |

@@ -12,7 +12,7 @@ The product’s core promise — *every AI surface has a deterministic fallback*
 
 ## Numbers (measured 2026-09-26)
 
-- **254 tests in 23 suites — 100% passing** (`npm test`).
+- **254 tests in 24 suites — 100% passing** (`npm test`).
 - Coverage over `src/domain/**` + `src/lib/**` (type-only files and `security/headers.ts` excluded): **statements 99.06% · branches 94.91% · functions 99.47% · lines 99.03%**.
 - Enforced Vitest thresholds: **98 / 90 / 98 / 98** (statements / branches / functions / lines) — the suite fails the build below them. Branch coverage was raised from 87.8% → 94.9% with pin-point tests for 28 previously uncovered branch paths.
 

@@ -22,7 +22,16 @@ The same headers are re-applied to every streaming/API response via `applySecuri
 
 ## Dependency posture (accepted risk, documented)
 
-`npm audit` reports advisories against the pinned stack (`next@14.2.x`, `ai@4.x`, transitive `glob` via `eslint-config-next`). The fixed releases are **major-version jumps** (`next@16`, `ai@6`) that would break the App Router pin and remove `useCompletion`, which five UI sections depend on. Per the project’s no-stack-change constraint, these are **accepted, disclosed risks** rather than silently ignored ones — tracked in [EVALUATION.md](EVALUATION.md). Dev-only tooling (ESLint chain) never ships to production bundles.
+`npm audit --production` reports **1 critical, 2 high, 1 moderate** advisories against the pinned stack, named here for full disclosure:
+
+| Package | Severity | Why it stays pinned | Compensating mitigation |
+| --- | --- | --- | --- |
+| `next` | critical | Fixed only in `next@16.x` — a major jump that breaks the App Router pin this project is built and tested on | No `middleware.ts` exists: all request handling is static prerendered pages plus isolated API routes; every route enforces method checks (405), Zod validation, rate limiting, and sanitized errors |
+| `jsondiffpatch` (via `ai@4`) | high | Fixed in `ai@6`, which removes `useCompletion` — five UI sections depend on it | Diff rendering is server-side over already-sanitized (50k-char cap) plain text; strict CSP with no `unsafe-eval` ships in production |
+| `postcss` | high | Build-time CSS processing only — never executes at runtime | Build runs in CI on pinned lockfile (`npm ci`) |
+| `@ai-sdk/provider-utils` | moderate | Same `ai@4` pin as above | 30s `AI_TIMEOUT_MS` and input sanitization bound the uncontrolled-resource path |
+
+Dev-only tooling advisories (`glob` via `eslint-config-next`) never ship to production bundles. Per the project’s no-stack-change constraint, these are **accepted, disclosed risks** rather than silently ignored ones — tracked in [EVALUATION.md](EVALUATION.md).
 
 ## Out of scope (honest limitations)
 
