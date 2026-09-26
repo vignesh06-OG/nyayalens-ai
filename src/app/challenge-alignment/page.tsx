@@ -79,7 +79,7 @@ export default function ChallengeAlignmentPage() {
                 </span>
               </div>
               <p className="mt-1 text-xs text-slate-400">{entry.note}</p>
-              <p className="mt-1 font-mono text-[11px] text-slate-600">{entry.path}</p>
+              <p className="mt-1 font-mono text-[11px] text-slate-400">{entry.path}</p>
             </li>
           ))}
         </ul>

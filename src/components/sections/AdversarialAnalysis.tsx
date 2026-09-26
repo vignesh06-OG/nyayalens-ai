@@ -215,7 +215,7 @@ export default function AdversarialAnalysisSection({
               <Scale className="h-4 w-4" aria-hidden="true" />
               Analyze adversarially
             </Button>
-            <span className="text-xs text-slate-500">{text.trim().length.toLocaleString()} characters</span>
+            <span className="text-xs text-slate-400">{text.trim().length.toLocaleString()} characters</span>
           </div>
         </Card>
 

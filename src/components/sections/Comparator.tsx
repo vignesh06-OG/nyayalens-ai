@@ -158,7 +158,7 @@ export default function ComparatorSection({ initialDocA = "", initialDocB = "" }
             <GitCompare className="h-4 w-4" aria-hidden="true" />
             {phase === "comparing" ? "Comparing…" : "Compare"}
           </Button>
-          <span className="text-xs text-slate-500">
+          <span className="text-xs text-slate-400">
             {docA.trim().length + docB.trim().length > 0
               ? `${(docA.trim().length + docB.trim().length).toLocaleString()} characters across both versions`
               : "Load both versions to enable comparison"}
