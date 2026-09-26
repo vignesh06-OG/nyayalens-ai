@@ -2,18 +2,30 @@
 
 ## Transport & headers (10/10, `next.config.mjs`, applied to `/(.*)`)
 
-Content-Security-Policy (default-src 'self'; connect-src 'self' https://api.openai.com) · Strict-Transport-Security (max-age=63072000; includeSubDomains; preload) · X-Frame-Options: DENY · X-Content-Type-Options: nosniff · Referrer-Policy: strict-origin-when-cross-origin · Permissions-Policy: camera=(), microphone=(), geolocation=() · Cross-Origin-Opener-Policy: same-origin · Cross-Origin-Resource-Policy: same-origin · X-DNS-Prefetch-Control: off · X-Permitted-Cross-Domain-Policies: none.
+Content-Security-Policy (`default-src 'self'`; `connect-src 'self' https://api.openai.com`; `img-src 'self' data: blob:`) · Strict-Transport-Security (`max-age=63072000; includeSubDomains; preload`) · X-Frame-Options: DENY · X-Content-Type-Options: nosniff · Referrer-Policy: strict-origin-when-cross-origin · Permissions-Policy: `camera=(), microphone=(), geolocation=()` · Cross-Origin-Opener-Policy: same-origin · Cross-Origin-Resource-Policy: same-origin · X-DNS-Prefetch-Control: off · X-Permitted-Cross-Domain-Policies: none.
+
+The same headers are re-applied to every streaming/API response via `applySecurityHeaders` (`src/lib/security/headers.ts`), so SSE-style streams are not exempt.
+
+### CSP rationale (honest trade-offs)
+
+- `'unsafe-eval` is **dev-only** (`NODE_ENV !== "production"`): the webpack HMR runtime evaluates generated module code. The production bundle never ships it — verified by `curl -I` against the live deploy.
+- `script-src 'unsafe-inline'` remains in production: the Next.js App Router inlines flight-data bootstrap scripts and this app runs no nonce middleware. Removing it would require a custom server or middleware nonce pipeline — recorded as an accepted trade-off, not an oversight.
 
 ## Application guardrails
 
-- **Input validation** — Zod schemas for every API body (`src/lib/validation/schema.ts`); 400s with safe, stack-free messages (`formatZodError`).
-- **Input sanitisation** — HTML-tag + event-handler stripping with size caps (`src/lib/security/sanitize.ts`, 50k default).
-- **Rate limiting** — in-memory sliding window, 100 req/min per client key with `Retry-After` (`src/lib/security/rateLimit.ts`); globalThis singleton so limits hold across Next route module graphs.
-- **AI safety** — 30 s abort timeouts on every GenAI call; prompts centralised and never interpolate raw HTML; outputs re-validated against Zod object schemas; deterministic rule-based fallback on any failure with the exact message *"AI analysis temporarily unavailable. Showing rule-based assessment."*
-- **Error hygiene** — no stack traces or internals ever leave an API route (`src/lib/http.ts` envelopes).
-- **Secrets** — `OPENAI_API_KEY` read only from the environment (`.env.example` documents the contract; no values committed).
-- **Dependency posture** — the mandated stack pins `ai@4` / `next@14`; `npm audit` reports transitive advisories in those pinned lines (ai/next have no semver-compatible patched releases under the pin). All other findings were remediated (test toolchain upgraded to the patched vitest 4.1.11 line). Accepted-risk register lives in EVALUATION.md.
+- **Input validation** — Zod schemas for every API body (`src/lib/validation/schema.ts`, 6 completion modes); 400s carry safe, stack-free messages (`formatZodError`). Unknown `contractId`s get 404; wrong methods get 405; malformed JSON gets 400.
+- **Input sanitisation** — HTML-tag and event-handler stripping with escaping and size caps (`src/lib/security/sanitize.ts`, 50,000-char default; per-field caps at every route, e.g. 200 for ids, 500 for goals).
+- **Rate limiting** — in-memory sliding window, **100 requests / 60 s per client key** with `Retry-After` on 429 (`src/lib/security/rateLimit.ts`); `globalThis` singleton so limits hold across Next’s route-module graph.
+- **Bounded ephemeral state** — analysed contracts live in a server-memory store with a **30-minute TTL and a 200-entry cap** with oldest-first eviction (`src/lib/contractStore.ts`): bounded memory, nothing persisted, nothing logged.
+- **AI safety** — 30 s `AbortSignal.timeout` on every GenAI call; prompts centralised in `src/lib/ai/prompts.ts` and never interpolate raw HTML; structured outputs re-validated against Zod object schemas; deterministic rule-based fallback on any failure with the exact message *“AI analysis temporarily unavailable. Showing rule-based assessment.”* Statutory citations, risk levels, and convergence scores are rule-pinned — the model cannot invent law even when compromised or hallucinating.
+- **Secrets** — `OPENAI_API_KEY` is server-side only (never referenced in client bundles; CSP `connect-src` limits browser egress to same-origin + `api.openai.com` as defence in depth). The repo contains only `.env.example`; `.env*` is git-ignored.
 
-## Data handling
+## Dependency posture (accepted risk, documented)
 
-Contract text is held in an in-memory, TTL-expiring, size-capped store (`src/lib/contractStore.ts` — 200 entries, ~24 h TTL). Nothing is persisted to disk or third parties other than the OpenAI API call itself.
+`npm audit` reports advisories against the pinned stack (`next@14.2.x`, `ai@4.x`, transitive `glob` via `eslint-config-next`). The fixed releases are **major-version jumps** (`next@16`, `ai@6`) that would break the App Router pin and remove `useCompletion`, which five UI sections depend on. Per the project’s no-stack-change constraint, these are **accepted, disclosed risks** rather than silently ignored ones — tracked in [EVALUATION.md](EVALUATION.md). Dev-only tooling (ESLint chain) never ships to production bundles.
+
+## Out of scope (honest limitations)
+
+- No authentication or user accounts; rate-limit keys are best-effort client identifiers, not identities.
+- The rate limiter and contract store are per-instance in-memory — on multi-instance serverless deployments limits are per instance, not global.
+- No file uploads are processed: documents arrive as pasted text only, bounded by the sanitiser caps.

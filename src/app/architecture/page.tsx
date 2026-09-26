@@ -9,31 +9,31 @@ const LAYERS = [
   {
     name: "Presentation Layer",
     detail: "React components & workbench sections (client islands, streamed UI)",
-    path: "src/components/ — 22 modules (ui kit + 5 engine sections + workspace)",
+    path: "src/components/ — 23 modules (14 ui kit + 9 workspace sections)",
     color: "border-rose-400/40 text-rose-100",
   },
   {
     name: "Application Layer",
     detail: "API routes & orchestration (7-step pattern: validate → limit → sanitize → timeout → prompt → AI+fallback → respond)",
-    path: "src/app/api/ — 6 routes (analyze, simulate, simplify, compare, actions, completion)",
+    path: "src/app/api/ — 7 routes (analyze, simulate, simplify, compare, actions, negotiate, completion)",
     color: "border-amber-400/40 text-amber-100",
   },
   {
     name: "Infrastructure Layer",
     detail: "AI provider, security, validation (gpt-4o / gpt-4o-mini, Zod, rate limit, sanitisation, headers)",
-    path: "src/lib/ — 10 modules (ai/{prompts,provider,fallback}, security/*, validation/*, http, contractStore, utils)",
+    path: "src/lib/ — 13 modules (ai/{prompts,provider,streaming,negotiation,narratives,fallback}, security/*, validation/*, http, contractStore, utils)",
     color: "border-blue-400/40 text-blue-100",
   },
   {
     name: "Domain Layer",
     detail: "Pure logic, framework-independent — zero React, zero fetch, zero side effects",
-    path: "src/domain/ — 11 modules across 5 engines + challenge manifest",
+    path: "src/domain/ — 16 modules across 6 engines + Indian-provisions database + challenge manifest",
     color: "border-emerald-400/40 text-emerald-100",
   },
 ];
 
 const SOLID = [
-  ["S — Single Responsibility", "each domain engine owns one concern (risk, simulation, simplification, actions, comparison)"],
+  ["S — Single Responsibility", "each domain engine owns one concern (risk, simulation, simplification, actions, comparison, negotiation)"],
   ["O — Open/Closed", "new scenario kinds, templates, and dictionaries extend data tables without touching engine control flow"],
   ["L — Liskov Substitution", "AI path and rule fallback return identical outcome shapes (AiCallMeta + payloads)"],
   ["I — Interface Segregation", "narrow typed contracts: ClauseDiff, RiskDelta, ComplianceChecklistItem, PromptBundle…"],
@@ -50,12 +50,12 @@ const TSCONFIG = [
 ];
 
 const COUNTS = [
-  ["58", "src modules (.ts/.tsx)"],
-  ["17", "test suites"],
-  ["6", "API routes"],
+  ["68", "src modules (.ts/.tsx)"],
+  ["23", "test suites"],
+  ["7", "API routes"],
   ["4", "pages (3 static + workbench)"],
-  ["11", "domain modules"],
-  ["10", "lib modules"],
+  ["16", "domain modules"],
+  ["13", "lib modules"],
 ];
 
 export default function ArchitecturePage() {

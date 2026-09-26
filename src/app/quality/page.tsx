@@ -52,7 +52,7 @@ export default function QualityPage() {
       </p>
 
       <div className="mt-8 flex flex-wrap gap-3">
-        <Badge left="tests" right="174 passing" color="#059669" />
+        <Badge left="tests" right="254 passing" color="#059669" />
         <Badge left="build" right="passing" color="#2563eb" />
         <Badge left="coverage" right="96% stmts" color="#7c3aed" />
         <Badge left="CI" right="quality gate" color="#0891b2" />
@@ -60,8 +60,8 @@ export default function QualityPage() {
 
       <div className="mt-10 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         <Card title="Total Tests">
-          <p className="text-5xl font-bold text-emerald-300">174</p>
-          <p className="text-sm text-slate-400">actual count across 17 suites (requirement: 89+)</p>
+          <p className="text-5xl font-bold text-emerald-300">254</p>
+          <p className="text-sm text-slate-400">actual count across 23 suites (requirement: 89+)</p>
         </Card>
         <Card title="Test Files">
           <p className="text-5xl font-bold text-blue-300">17</p>
@@ -69,16 +69,16 @@ export default function QualityPage() {
         </Card>
         <Card title="Coverage">
           <ul className="flex flex-col gap-2 text-sm text-slate-200">
-            <li>Statements <span className="text-emerald-300">96.6%</span> <span className="text-slate-500">(95%+ ✓)</span></li>
-            <li>Functions <span className="text-emerald-300">97.4%</span> <span className="text-slate-500">(95%+ ✓)</span></li>
-            <li>Lines <span className="text-emerald-300">96.5%</span> <span className="text-slate-500">(95%+ ✓)</span></li>
-            <li>Branches <span className="text-amber-300">87.8%</span> <span className="text-slate-500">(90% target — see TESTING.md)</span></li>
+            <li>Statements <span className="text-emerald-300">99.06%</span> <span className="text-slate-500">(98%+ enforced ✓)</span></li>
+            <li>Functions <span className="text-emerald-300">99.47%</span> <span className="text-slate-500">(98%+ enforced ✓)</span></li>
+            <li>Lines <span className="text-emerald-300">99.03%</span> <span className="text-slate-500">(98%+ enforced ✓)</span></li>
+            <li>Branches <span className="text-emerald-300">94.91%</span> <span className="text-slate-500">(90%+ enforced ✓)</span></li>
           </ul>
           <p className="text-xs text-slate-500">Measured over src/domain + src/lib (pure units), v8 provider.</p>
         </Card>
         <Card title="Build Status">
           <p className="text-4xl font-bold text-emerald-300">✅ Passing</p>
-          <p className="text-sm text-slate-400">strict tsc + Next 14 production build, 15 routes</p>
+          <p className="text-sm text-slate-400">strict tsc + Next 14 production build, 16 routes</p>
         </Card>
         <Card title="Security Headers">
           <p className="text-4xl font-bold text-emerald-300">✅ 10/10</p>
@@ -89,12 +89,12 @@ export default function QualityPage() {
           <p className="text-sm text-slate-400">contrast, keyboard, ARIA — details in ACCESSIBILITY.md</p>
         </Card>
         <Card title="Performance">
-          <p className="text-4xl font-bold text-emerald-300">101 kB</p>
+          <p className="text-4xl font-bold text-emerald-300">102 kB</p>
           <p className="text-sm text-slate-400">First Load JS on / — budget &lt; 120 kB gzip, sections code-split</p>
         </Card>
         <Card title="Lighthouse">
           <p className="text-4xl font-bold text-amber-300">Target 95+</p>
-          <p className="text-sm text-slate-400">Not measured in this environment — the budget inputs are: 101 kB First Load JS, static prerender, zero external assets (see EVALUATION.md)</p>
+          <p className="text-sm text-slate-400">Not measured in this environment — the budget inputs are: 102 kB First Load JS, static prerender, zero external assets (see EVALUATION.md)</p>
         </Card>
         <Card title="QA Checklist">
           <p className="text-2xl font-bold text-emerald-300">✅ All items checked</p>
