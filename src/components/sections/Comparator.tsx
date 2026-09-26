@@ -4,7 +4,6 @@ import { useCallback, useMemo, useState } from "react";
 import { useCompletion } from "ai/react";
 import { GitCompare } from "lucide-react";
 
-import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { EmptyState } from "@/components/ui/EmptyState";
@@ -12,8 +11,10 @@ import { ErrorState } from "@/components/ui/ErrorState";
 import { FileUpload, extractText } from "@/components/ui/FileUpload";
 import { Skeleton, SkeletonText } from "@/components/ui/Skeleton";
 import { SectionHeader } from "@/components/ui/SectionHeader";
-import type { ChangeKind, DiffResult, RiskDelta } from "@/domain/comparison/types";
+import type { DiffResult, RiskDelta } from "@/domain/comparison/types";
 import { cn } from "@/lib/utils";
+
+import { DiffRowsCard, RiskDeltaCard } from "./ComparatorPanels";
 
 export interface ComparatorSectionProps {
   initialDocA?: string;
@@ -28,13 +29,6 @@ interface ComparePayload {
   degraded: boolean;
   message: string | null;
 }
-
-const changeTone: Record<ChangeKind, { chip: "emerald" | "rose" | "amber" | "slate"; row: string; label: string }> = {
-  added: { chip: "emerald", row: "border-l-emerald-400 bg-emerald-500/5", label: "Added" },
-  removed: { chip: "rose", row: "border-l-rose-400 bg-rose-500/5", label: "Removed" },
-  modified: { chip: "amber", row: "border-l-amber-400 bg-amber-500/5", label: "Modified" },
-  unchanged: { chip: "slate", row: "border-l-slate-500 bg-white/[0.02]", label: "Unchanged" },
-};
 
 /**
  * SECTION 5 — Contract Comparator.
@@ -196,33 +190,7 @@ export default function ComparatorSection({ initialDocA = "", initialDocB = "" }
         {phase === "done" && result !== null ? (
           <>
             {/* Risk delta indicator (blue) */}
-            <Card accent="blue" className="items-center gap-2" padding="lg">
-              <h3 className="text-base font-semibold text-blue-100">Risk Delta</h3>
-              <p
-                role="status"
-                className={cn(
-                  "text-5xl font-bold tabular-nums",
-                  delta >= 5 ? "text-rose-300" : delta <= -5 ? "text-emerald-300" : "text-blue-200",
-                )}
-              >
-                {delta > 0 ? "+" : ""}
-                {delta.toFixed(2)}
-              </p>
-              <p className="text-sm text-slate-300">{deltaLabel}</p>
-              <p className="text-xs text-slate-500">
-                Aggregate risk moved {result.riskDelta.baseScore} → {result.riskDelta.targetScore}
-              </p>
-              {result.riskDelta.movements.length > 0 ? (
-                <ul className="mt-2 flex w-full flex-col gap-1.5 border-t border-white/10 pt-3">
-                  {result.riskDelta.movements.slice(0, 4).map((m) => (
-                    <li key={m.slot} className="flex items-start gap-2 text-sm text-slate-300">
-                      <Badge tone="slate" className="shrink-0 !px-2 !py-0.5 !text-[10px]">{m.slot}</Badge>
-                      {m.note}
-                    </li>
-                  ))}
-                </ul>
-              ) : null}
-            </Card>
+            <RiskDeltaCard delta={delta} deltaLabel={deltaLabel} riskDelta={result.riskDelta} />
 
             {/* Streaming narrative */}
             <Card className={cn("gap-3", streaming && "magic-border bg-slate-950/60")} padding="lg">
@@ -245,52 +213,7 @@ export default function ComparatorSection({ initialDocA = "", initialDocB = "" }
             </Card>
 
             {/* Diff rows */}
-            <Card className="gap-3" padding="lg">
-              <div className="flex flex-wrap items-center justify-between gap-2">
-                <h3 className="text-base font-semibold text-slate-100">Clause Diff</h3>
-                <div className="flex items-center gap-2 text-xs">
-                  <Badge tone="emerald">+{result.diff.addedCount} added</Badge>
-                  <Badge tone="rose">−{result.diff.removedCount} removed</Badge>
-                  <Badge tone="amber">~{result.diff.modifiedCount} modified</Badge>
-                </div>
-              </div>
-              <ul className="flex flex-col gap-2">
-                {result.diff.diffs.map((item) => {
-                  const tone = changeTone[item.changeKind];
-                  return (
-                    <li key={item.slot} className={cn("rounded-r-lg border-l-4 px-4 py-3", tone.row)}>
-                      <div className="flex flex-wrap items-center gap-2">
-                        <Badge tone={tone.chip}>{tone.label}</Badge>
-                        <span className="font-mono text-xs text-slate-400">{item.slot}</span>
-                        <span className="text-xs text-slate-500">
-                          similarity {Math.round(item.similarity * 100)}%
-                        </span>
-                      </div>
-                      <p className="mt-1 text-sm text-slate-300">{item.summary}</p>
-                      {item.baseText !== null || item.targetText !== null ? (
-                        <details className="mt-2">
-                          <summary className="cursor-pointer text-xs text-blue-300 hover:text-blue-200">
-                            View clause text
-                          </summary>
-                          <div className="mt-2 flex flex-col gap-2">
-                            {item.baseText !== null ? (
-                              <p className="whitespace-pre-wrap rounded-lg bg-white/5 p-3 text-xs text-slate-400">
-                                <strong className="text-slate-300">A:</strong> {item.baseText}
-                              </p>
-                            ) : null}
-                            {item.targetText !== null ? (
-                              <p className="whitespace-pre-wrap rounded-lg bg-white/5 p-3 text-xs text-slate-400">
-                                <strong className="text-slate-300">B:</strong> {item.targetText}
-                              </p>
-                            ) : null}
-                          </div>
-                        </details>
-                      ) : null}
-                    </li>
-                  );
-                })}
-              </ul>
-            </Card>
+            <DiffRowsCard diff={result.diff} />
           </>
         ) : phase === "idle" ? (
           <EmptyState

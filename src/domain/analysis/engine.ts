@@ -4,12 +4,16 @@ import {
   type Clause,
   type HeatmapCell,
   type HeatmapData,
-  type Obligation,
-  type ObligationParty,
   type RiskAssessment,
   type RiskDimension,
   type RiskLevel,
 } from "./types";
+
+import { extractObligations } from "./obligations";
+
+// Re-exported so existing importers keep resolving these from "./engine".
+export { segmentClauses, splitSentences } from "./segmentation";
+export { extractObligations };
 
 /* ------------------------------------------------------------------ */
 /* Keyword signals per risk dimension (shared with sibling engines)    */
@@ -121,14 +125,6 @@ const LEVEL_WEIGHTS: Readonly<Record<RiskLevel, number>> = {
 /* Pure helpers                                                        */
 /* ------------------------------------------------------------------ */
 
-/** Split text into sentence-ish units. Deterministic. */
-export function splitSentences(text: string): string[] {
-  return text
-    .split(/(?<=[.;!?])\s+|\n+/)
-    .map((s) => s.trim())
-    .filter((s) => s.length > 0);
-}
-
 export function levelForScore(score: number): RiskLevel {
   if (score < 25) {
     return "low";
@@ -168,34 +164,6 @@ function countMatches(text: string, signals: readonly string[]): number {
     }
   }
   return matches;
-}
-
-/**
- * Segment raw legal text into clauses. Numbered headings become
- * references/titles; paragraph blocks are the unit of analysis.
- * Deterministic and dependency-free.
- */
-export function segmentClauses(text: string): Clause[] {
-  const blocks = text
-    .split(/\n\s*\n/)
-    .map((b) => b.trim())
-    .filter((b) => b.length > 0);
-
-  const usable = blocks.length > 0 ? blocks : text.trim().length > 0 ? [text.trim()] : [];
-
-  return usable.map((block, index) => {
-    const heading = /^\s*(clause|section|article)?\s*([\d]+(?:\.[\d]+)*[.)]?|[A-Z][.)])\s+([^\n]{0,80})/i.exec(
-      block,
-    );
-    const reference = heading?.[2] !== undefined ? `Clause ${heading[2]}` : `Clause ${index + 1}`;
-    const title = (heading?.[3] ?? block.slice(0, 60)).trim();
-    return {
-      id: `c${index + 1}`,
-      reference,
-      title,
-      text: block,
-    };
-  });
 }
 
 /* ------------------------------------------------------------------ */
@@ -296,79 +264,6 @@ export function generateHeatmapData(
     dimensions: [...RISK_DIMENSIONS],
     cells,
   };
-}
-
-const PARTY_A_SIGNALS: readonly string[] = [
-  "tenant",
-  "employee",
-  "recipient",
-  "licensee",
-  "borrower",
-  "supplier",
-  "buyer",
-  "client",
-  "consultant",
-  "party a",
-];
-const PARTY_B_SIGNALS: readonly string[] = [
-  "landlord",
-  "employer",
-  "discloser",
-  "licensor",
-  "lender",
-  "seller",
-  "service provider",
-  "owner",
-  "party b",
-];
-
-function detectParty(sentence: string): ObligationParty {
-  const text = sentence.toLowerCase();
-  if (/both parties|each party|either party|parties mutually/.test(text)) {
-    return "both";
-  }
-  const hasA = PARTY_A_SIGNALS.some((s) => text.includes(s));
-  const hasB = PARTY_B_SIGNALS.some((s) => text.includes(s));
-  if (hasA && !hasB) {
-    return "party-a";
-  }
-  if (hasB && !hasA) {
-    return "party-b";
-  }
-  return "both";
-}
-
-const OBLIGATION_TRIGGER =
-  /\b(shall|must|will|agrees? to|undertakes? to|is responsible for|is liable for|required to)\b/i;
-const DEADLINE_RE =
-  /\b(within\s+\d+\s+\w+|\d+\s+days?\s+(?:prior|before|after)|on or before\s+[^,.;]+|no later than\s+[^,.;]+)/i;
-const TRIGGER_RE = /\b(upon|in the event|if|when|after|before)\b[^,.;]*/i;
-
-/** Extract concrete obligations ("who must do what, when") from clauses. */
-export function extractObligations(clauses: readonly Clause[]): Obligation[] {
-  const obligations: Obligation[] = [];
-  let index = 0;
-
-  for (const clause of clauses) {
-    for (const sentence of splitSentences(clause.text)) {
-      if (!OBLIGATION_TRIGGER.test(sentence)) {
-        continue;
-      }
-      index += 1;
-      const deadline = DEADLINE_RE.exec(sentence)?.[0]?.trim() ?? null;
-      const trigger = TRIGGER_RE.exec(sentence)?.[0]?.trim() ?? null;
-      obligations.push({
-        id: `o${index}`,
-        clauseId: clause.id,
-        party: detectParty(sentence),
-        action: sentence.slice(0, 240),
-        trigger,
-        deadline,
-      });
-    }
-  }
-
-  return obligations;
 }
 
 /** Aggregate 0–100 risk score; higher-severity clauses weigh more. */

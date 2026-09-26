@@ -85,3 +85,28 @@ export const NEGOTIATION_ROUNDS = ROUND_INDICES.length;
 /** Convergence trajectory per round (deterministic; general goals trail). */
 export const CONVERGENCE_LADDER: readonly [number, number, number] = [30, 60, 85];
 export const CONVERGENCE_LADDER_GENERAL: readonly [number, number, number] = [20, 45, 70];
+
+// ---------------------------------------------------------------------------
+// Playbook contract (data: playbooks-contract.ts / playbooks-dispute.ts)
+// ---------------------------------------------------------------------------
+
+export interface NegotiationPlaybook {
+  /** Free-text signals used to detect this goal from the user's ask. */
+  signals: readonly string[];
+  /** Provision ids each agent grounds on. */
+  citationsA: readonly string[];
+  citationsB: readonly string[];
+  citationsMediator: readonly string[];
+  /** Round 1–3 positions. */
+  partyA: readonly [string, string, string];
+  partyB: readonly [string, string, string];
+  /** Round 2–3 concessions. */
+  concessionsA: readonly [string, string];
+  concessionsB: readonly [string, string];
+  /** Round 1–3 mediator gap statements and bridges. */
+  gaps: readonly [string, string, string];
+  suggestions: readonly [string, string, string];
+  /** Clause topics (risk dimensions) the redline hunt targets. */
+  targetTopics: readonly string[];
+  redline: { issue: string; proposedText: string; rationale: string };
+}
