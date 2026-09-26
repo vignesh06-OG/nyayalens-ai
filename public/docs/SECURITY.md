@@ -8,7 +8,7 @@ The same headers are re-applied to every streaming/API response via `applySecuri
 
 ### CSP rationale (honest trade-offs)
 
-- The CSP is **unconditional** — the identical strict policy (no `unsafe-eval`, plus `frame-ancestors 'none'; object-src 'none'; base-uri 'self'`) ships in dev and prod with zero environment branching in `headers()`. Webpack dev chunks use `eval()` source-map wrappers, so for dev-time HMR run `npx next dev --turbo` (Turbopack serves eval-free modules). Production bundles never ship eval — verified by `curl -I` against the live deploy and by chunk inspection.
+- The CSP is **unconditional** — the identical strict policy (no `unsafe-eval`, plus `frame-ancestors 'none'; object-src 'none'; base-uri 'self'`) ships in dev and prod with zero environment branching in `headers()`. Browser-verified: `npm run dev` renders and hot-compiles edited sources under this strict CSP with zero console violations (the `eval(` strings inside webpack runtime chunks are inert text, never executed) — no Turbopack workaround is needed. Production bundles never ship eval — verified by `curl -I` against the live deploy and by chunk inspection.
 - `script-src 'unsafe-inline'` remains in production: the Next.js App Router inlines flight-data bootstrap scripts and this app runs no nonce middleware. Removing it would require a custom server or middleware nonce pipeline — recorded as an accepted trade-off, not an oversight.
 
 ## Application guardrails

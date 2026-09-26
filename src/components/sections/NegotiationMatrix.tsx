@@ -133,7 +133,11 @@ export default function NegotiationSection({ analysis }: NegotiationSectionProps
       />
 
       <div className="mt-12 flex flex-col gap-6">
-        {analysis === null ? (
+        <p className="text-xs text-slate-400">
+        Simulated AI counterparty stance, for informational analysis only, not a real party or court.
+      </p>
+
+      {analysis === null ? (
           <EmptyState
             icon={<Handshake className="h-5 w-5" aria-hidden="true" />
             }

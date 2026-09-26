@@ -27,7 +27,7 @@ const statusLabel: Record<AlignmentStatus, string> = {
 
 export default function ChallengeAlignmentPage() {
   return (
-    <main className="mx-auto max-w-6xl px-6 py-24">
+    <div className="mx-auto max-w-6xl px-6 py-24">
       <p className="text-xs uppercase tracking-[0.28em] text-blue-300">Evaluator evidence</p>
       <h1 className="mt-3 text-4xl font-bold tracking-tight text-slate-50">Challenge Alignment</h1>
       <p className="mt-3 max-w-2xl text-slate-400">
@@ -50,19 +50,19 @@ export default function ChallengeAlignmentPage() {
             </header>
             <dl className="mt-4 grid gap-4 md:grid-cols-3">
               <div>
-                <dt className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">What It Does</dt>
+                <dt className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">What It Does</dt>
                 <dd className="mt-1 text-sm leading-relaxed text-slate-300">{row.whatItDoes}</dd>
               </div>
               <div>
-                <dt className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Why It Aligns</dt>
+                <dt className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">Why It Aligns</dt>
                 <dd className="mt-1 text-sm leading-relaxed text-slate-300">{row.whyItAligns}</dd>
               </div>
               <div>
-                <dt className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Measurable Outcome</dt>
+                <dt className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">Measurable Outcome</dt>
                 <dd className="mt-1 text-sm leading-relaxed text-emerald-100">{row.measurableOutcome}</dd>
               </div>
             </dl>
-            <p className="mt-3 font-mono text-xs text-slate-500">{row.path} · {row.module}</p>
+            <p className="mt-3 font-mono text-xs text-slate-400">{row.path} · {row.module}</p>
           </article>
         ))}
       </div>
@@ -78,12 +78,12 @@ export default function ChallengeAlignmentPage() {
                   {statusLabel[entry.status]}
                 </span>
               </div>
-              <p className="mt-1 text-xs text-slate-500">{entry.note}</p>
+              <p className="mt-1 text-xs text-slate-400">{entry.note}</p>
               <p className="mt-1 font-mono text-[11px] text-slate-600">{entry.path}</p>
             </li>
           ))}
         </ul>
       </section>
-    </main>
+    </div>
   );
 }

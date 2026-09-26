@@ -89,12 +89,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 <p className="text-sm font-semibold tracking-tight text-slate-200">
                   NyayaLens AI
                 </p>
-                <p className="text-xs text-slate-500">
+                <p className="text-xs text-slate-400">
                   GenAI legal intelligence for real people
                 </p>
               </div>
             </div>
-            <ul className="flex flex-wrap items-center gap-4 text-xs text-slate-500">
+            <ul className="flex flex-wrap items-center gap-4 text-xs text-slate-400">
               {navigation.map((item) => (
                 <li key={item.href}>
                   <Link href={item.href} className="transition-colors hover:text-slate-300">
@@ -104,7 +104,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               ))}
             </ul>
           </div>
-          <p className="mx-auto w-full max-w-7xl border-t border-white/5 px-6 pb-8 pt-6 text-xs leading-relaxed text-slate-500">
+          <p className="mx-auto w-full max-w-7xl border-t border-white/5 px-6 pb-8 pt-6 text-xs leading-relaxed text-slate-400">
             NyayaLens AI provides informational assistance, not legal advice.
           </p>
         </footer>

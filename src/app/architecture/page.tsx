@@ -60,7 +60,7 @@ const COUNTS = [
 
 export default function ArchitecturePage() {
   return (
-    <main className="mx-auto max-w-6xl px-6 py-24">
+    <div className="mx-auto max-w-6xl px-6 py-24">
       <p className="text-xs uppercase tracking-[0.28em] text-blue-300">Evaluator evidence</p>
       <h1 className="mt-3 text-4xl font-bold tracking-tight text-slate-50">Architecture</h1>
       <p className="mt-3 max-w-2xl text-slate-400">
@@ -84,7 +84,7 @@ export default function ArchitecturePage() {
             <article className={`glass w-full border-l-4 p-5 ${layer.color}`}>
               <h2 className="text-lg font-semibold">{layer.name}</h2>
               <p className="mt-1 text-sm text-slate-300">{layer.detail}</p>
-              <p className="mt-1 font-mono text-xs text-slate-500">{layer.path}</p>
+              <p className="mt-1 font-mono text-xs text-slate-400">{layer.path}</p>
             </article>
             {index < LAYERS.length - 1 ? (
               <svg aria-hidden="true" width="24" height="28" viewBox="0 0 24 28">
@@ -93,7 +93,7 @@ export default function ArchitecturePage() {
             ) : null}
           </div>
         ))}
-        <p className="mt-2 text-center text-xs text-slate-500">
+        <p className="mt-2 text-center text-xs text-slate-400">
           Dependency direction: arrows point inward — outer layers depend on inner ones, never the reverse.
         </p>
       </section>
@@ -117,18 +117,18 @@ export default function ArchitecturePage() {
               <li key={flag}>☑ {flag}</li>
             ))}
           </ul>
-          <p className="mt-3 text-xs text-slate-500">Verified continuously by `npm run type-check` in the quality chain.</p>
+          <p className="mt-3 text-xs text-slate-400">Verified continuously by `npm run type-check` in the quality chain.</p>
           <h2 className="mt-6 text-sm font-semibold uppercase tracking-[0.18em] text-slate-400">File / module counts</h2>
           <dl className="mt-3 grid grid-cols-2 gap-2">
             {COUNTS.map(([value, label]) => (
               <div key={label}>
                 <dt className="text-2xl font-bold text-slate-100">{value}</dt>
-                <dd className="text-xs text-slate-500">{label}</dd>
+                <dd className="text-xs text-slate-400">{label}</dd>
               </div>
             ))}
           </dl>
         </section>
       </div>
-    </main>
+    </div>
   );
 }

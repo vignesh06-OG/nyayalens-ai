@@ -43,7 +43,7 @@ const QA_ITEMS = [
 
 export default function QualityPage() {
   return (
-    <main className="mx-auto max-w-6xl px-6 py-24">
+    <div className="mx-auto max-w-6xl px-6 py-24">
       <p className="text-xs uppercase tracking-[0.28em] text-blue-300">Evaluator evidence</p>
       <h1 className="mt-3 text-4xl font-bold tracking-tight text-slate-50">Quality &amp; Verification</h1>
       <p className="mt-3 max-w-2xl text-slate-400">
@@ -69,12 +69,12 @@ export default function QualityPage() {
         </Card>
         <Card title="Coverage">
           <ul className="flex flex-col gap-2 text-sm text-slate-200">
-            <li>Statements <span className="text-emerald-300">99.06%</span> <span className="text-slate-500">(98%+ enforced ✓)</span></li>
-            <li>Functions <span className="text-emerald-300">99.47%</span> <span className="text-slate-500">(98%+ enforced ✓)</span></li>
-            <li>Lines <span className="text-emerald-300">99.03%</span> <span className="text-slate-500">(98%+ enforced ✓)</span></li>
-            <li>Branches <span className="text-emerald-300">94.91%</span> <span className="text-slate-500">(90%+ enforced ✓)</span></li>
+            <li>Statements <span className="text-emerald-300">99.06%</span> <span className="text-slate-400">(98%+ enforced ✓)</span></li>
+            <li>Functions <span className="text-emerald-300">99.47%</span> <span className="text-slate-400">(98%+ enforced ✓)</span></li>
+            <li>Lines <span className="text-emerald-300">99.03%</span> <span className="text-slate-400">(98%+ enforced ✓)</span></li>
+            <li>Branches <span className="text-emerald-300">94.91%</span> <span className="text-slate-400">(90%+ enforced ✓)</span></li>
           </ul>
-          <p className="text-xs text-slate-500">Measured over src/domain + src/lib (pure units), v8 provider.</p>
+          <p className="text-xs text-slate-400">Measured over src/domain + src/lib (pure units), v8 provider.</p>
         </Card>
         <Card title="Build Status">
           <p className="text-4xl font-bold text-emerald-300">✅ Passing</p>
@@ -116,6 +116,6 @@ export default function QualityPage() {
         <Link className="glass px-5 py-3 text-sm text-blue-200 hover:border-blue-400/50" href="/docs/EVALUATION.md">EVALUATION.md</Link>
         <Link className="glass px-5 py-3 text-sm text-blue-200 hover:border-blue-400/50" href="/challenge-alignment">Challenge Alignment →</Link>
       </nav>
-    </main>
+    </div>
   );
 }
