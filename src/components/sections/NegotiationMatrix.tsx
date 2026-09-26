@@ -151,7 +151,7 @@ export default function NegotiationSection({ analysis }: NegotiationSectionProps
                   onClick={() => void negotiate(chip)}
                   disabled={phase === "negotiating"}
                   aria-label={`Negotiate: ${chip}`}
-                  className="rounded-full border border-white/15 bg-white/5 px-4 py-1.5 text-sm text-slate-300 transition-all hover:border-amber-400/50 hover:bg-amber-500/10 hover:text-amber-200 disabled:opacity-50"
+                  className="rounded-full border border-white/15 bg-white/5 px-4 py-1.5 text-sm text-slate-300 transition-all hover:border-amber-400/50 hover:bg-amber-500/10 hover:text-amber-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400/70 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950 disabled:opacity-50"
                 >
                   {chip}
                 </button>

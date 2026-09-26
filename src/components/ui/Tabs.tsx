@@ -81,7 +81,7 @@ export function Tabs({ tabs, value, onChange, label, className }: TabsProps) {
               tabIndex={selected ? 0 : -1}
               onClick={() => onChange(tab.id)}
               className={cn(
-                "rounded-lg px-3.5 py-2 text-sm font-medium tracking-tight transition-colors",
+                "rounded-lg px-3.5 py-2 text-sm font-medium tracking-tight transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400/70 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950",
                 selected
                   ? "bg-blue-500/20 text-blue-200 shadow-[0_0_15px_rgba(59,130,246,0.3)]"
                   : "text-slate-400 hover:bg-white/5 hover:text-slate-200",
@@ -99,7 +99,7 @@ export function Tabs({ tabs, value, onChange, label, className }: TabsProps) {
           id={`${baseId}-panel-${active.id}`}
           aria-labelledby={`${baseId}-tab-${active.id}`}
           tabIndex={0}
-          className="focus:outline-none"
+          className="rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400/70"
         >
           {active.content}
         </div>

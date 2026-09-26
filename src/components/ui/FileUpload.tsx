@@ -67,7 +67,12 @@ export function FileUpload({
   };
 
   return (
-    <div className={cn("w-full", className)}>
+    <div
+      className={cn(
+        "w-full [&:has(:focus-visible)]:rounded-2xl [&:has(:focus-visible)]:outline-none [&:has(:focus-visible)]:ring-2 [&:has(:focus-visible)]:ring-blue-400/70 [&:has(:focus-visible)]:ring-offset-2 [&:has(:focus-visible)]:ring-offset-slate-950",
+        className,
+      )}
+    >
       <label
         htmlFor={id}
         onDragOver={(event) => {

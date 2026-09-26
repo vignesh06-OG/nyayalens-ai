@@ -101,7 +101,7 @@ export default function PlainLanguageSection({
                 aria-pressed={lang === code}
                 onClick={() => setLang(code)}
                 className={cn(
-                  "rounded-lg px-3 py-1.5 text-sm font-medium transition-all",
+                  "rounded-lg px-3 py-1.5 text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400/70 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950",
                   lang === code
                     ? "bg-blue-500/20 text-blue-200 shadow-[0_0_15px_rgba(59,130,246,0.3)]"
                     : "text-slate-400 hover:bg-white/5 hover:text-slate-200",
