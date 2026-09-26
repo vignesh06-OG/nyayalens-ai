@@ -8,7 +8,7 @@ Format: **PASS / FAIL / NOT VERIFIED** per criterion, with the exact command or 
 | --- | --- | --- |
 | Tests (89+ across 17+ files) | **PASS** | 254 tests / 24 suites, 100% green — `npm test` ([TESTING.md](TESTING.md)) |
 | Coverage ≥95/95/95, branches ≥90 | **PASS** | 99.06 stmts / 99.47 funcs / 99.03 lines / **94.91 branches** — `npm run test:coverage`; enforced thresholds 98/90/98/98 fail the build below them |
-| Strict production build | **PASS** | `npm run build` green — 16 routes, `tsc --noEmit` strict + `noUncheckedIndexedAccess` 0 errors, `next lint` 0 warnings |
+| Strict production build | **PASS** | `npm run build` green — 14 routes, `tsc --noEmit` strict + `noUncheckedIndexedAccess` 0 errors, `next lint` 0 warnings |
 | Performance budget (<120 kB First Load) | **PASS** | `/` First Load JS **102 kB** in the build manifest; sections client-code-split; zero external fonts/images |
 | Security headers 10/10 | **PASS** | `next.config.mjs` on `/(.*)`, re-applied to streams via `applySecurityHeaders`; verified by `curl -I` on the live deploy ([SECURITY.md](SECURITY.md)) |
 | `npm audit` 0 high/critical | **FAIL — accepted risk** | Advisories on pinned `next@14.2` / `ai@4` (+ dev-only `glob` via `eslint-config-next`). Fixes exist only in majors (`next@16`, `ai@6`) that break the mandated stack pin and remove `useCompletion` (5 sections depend on it). Documented, disclosed, deliberately accepted ([SECURITY.md](SECURITY.md)) |

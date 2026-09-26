@@ -7,7 +7,7 @@ import "./globals.css";
 
 
 const navigation = [
-  { href: "/#instruments", label: "Instruments" },
+  { href: "/#features", label: "Instruments" },
   { href: "/quality", label: "Quality" },
   { href: "/architecture", label: "Architecture" },
   { href: "/challenge-alignment", label: "Challenge" },

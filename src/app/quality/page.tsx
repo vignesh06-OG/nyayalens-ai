@@ -78,7 +78,7 @@ export default function QualityPage() {
         </Card>
         <Card title="Build Status">
           <p className="text-4xl font-bold text-emerald-300">✅ Passing</p>
-          <p className="text-sm text-slate-400">strict tsc + Next 14 production build, 16 routes</p>
+          <p className="text-sm text-slate-400">strict tsc + Next 14 production build, 14 routes</p>
         </Card>
         <Card title="Security Headers">
           <p className="text-4xl font-bold text-emerald-300">✅ 10/10</p>
