@@ -8,7 +8,13 @@ import {
   provisionsFromClauses,
   toScenarioClauses,
 } from "@/domain/simulation/engine";
-import { SCENARIO_KINDS, type Contract, type LegalProvision } from "@/domain/simulation/types";
+import {
+  SCENARIO_KINDS,
+  type Consequence,
+  type Contract,
+  type LegalProvision,
+  type ScenarioResult,
+} from "@/domain/simulation/types";
 
 const provisions: LegalProvision[] = [
   { id: "p1", reference: "1", text: "Rent of Rs 25,000 is due on the 5th of each month.", topic: "payment" },
@@ -132,5 +138,60 @@ describe("law references", () => {
       const refs = mapLawReferences(evaluateScenario(contract, sample));
       expect(refs.length).toBeGreaterThan(0);
     }
+  });
+});
+
+describe("evaluateScenario edge paths", () => {
+  it("implicates nothing when the scenario has no recognizable terms", () => {
+    const result = evaluateScenario(contract, "123 456 !!!");
+    expect(result.provisions).toEqual([]);
+    expect(SCENARIO_KINDS).toContain(result.scenario.kind);
+  });
+
+  it("bumps template severity to critical when the matched provision is critical", () => {
+    const nasty: LegalProvision = {
+      id: "px",
+      reference: "9",
+      topic: "payment",
+      text: "The Tenant shall pay instantly; on any default the Landlord may forfeit the entire deposit at his sole discretion, with unlimited liability, and the Tenant irrevocably waives all rights and indemnifies the Landlord.",
+    };
+    const result = evaluateScenario(
+      { ...contract, provisions: [nasty] },
+      "Tenant fails to pay the rent on time — breach of the payment duty",
+    );
+    expect(result.consequences[0]?.severity).toBe("critical");
+  });
+});
+
+describe("mapConsequences cascade attenuation", () => {
+  const cascadeResult = (severity: Consequence["severity"]): ScenarioResult => ({
+    scenario: { id: "s1", description: "chain", kind: "breach" },
+    provisions: [],
+    consequences: [
+      {
+        id: "k1",
+        provisionId: null,
+        description: "base consequence",
+        severity,
+        timeHorizon: "immediate",
+        cascade: ["step one"],
+        mitigations: [],
+      },
+    ],
+    summary: "chain scenario",
+  });
+
+  it("attenuates severity exactly one step per cascade step", () => {
+    expect(mapConsequences(cascadeResult("critical"))[1]?.severity).toBe("high");
+    expect(mapConsequences(cascadeResult("high"))[1]?.severity).toBe("medium");
+    expect(mapConsequences(cascadeResult("medium"))[1]?.severity).toBe("low");
+    expect(mapConsequences(cascadeResult("low"))[1]?.severity).toBe("low");
+  });
+
+  it("keeps direct consequences ahead of their cascade entries", () => {
+    const flat = mapConsequences(cascadeResult("high"));
+    expect(flat).toHaveLength(2);
+    expect(flat[0]?.id).toBe("k1");
+    expect(flat[1]?.id).toBe("k1-k1");
   });
 });

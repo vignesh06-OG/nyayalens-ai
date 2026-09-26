@@ -61,7 +61,9 @@ const CONTRACT: Contract = {
 };
 
 describe("analyzeDocument", () => {
-  beforeEach(() => generateObjectMock.mockReset());
+  beforeEach(() => {
+    generateObjectMock.mockReset();
+  });
   afterEach(() => vi.restoreAllMocks());
 
   it("merges AI insights on the happy path without degrading", async () => {
@@ -104,7 +106,9 @@ describe("analyzeDocument", () => {
 });
 
 describe("simplifyDocument", () => {
-  beforeEach(() => generateObjectMock.mockReset());
+  beforeEach(() => {
+    generateObjectMock.mockReset();
+  });
   afterEach(() => vi.restoreAllMocks());
 
   it("returns the AI rewrite with an estimated grade", async () => {
@@ -127,7 +131,9 @@ describe("simplifyDocument", () => {
 });
 
 describe("compareDocuments", () => {
-  beforeEach(() => generateObjectMock.mockReset());
+  beforeEach(() => {
+    generateObjectMock.mockReset();
+  });
   afterEach(() => vi.restoreAllMocks());
 
   it("keeps the domain diff and overlays AI materiality", async () => {
@@ -158,5 +164,42 @@ describe("runRuleSimulation", () => {
     expect(outcome.result.summary).toMatch(/provision/i);
     expect(outcome.consequences.length).toBeGreaterThan(0);
     expect(outcome.consequences[0]?.probability.value).toBeGreaterThanOrEqual(0);
+  });
+});
+
+describe("analyzeDocument obligation fallback", () => {
+  beforeEach(() => {
+    generateObjectMock.mockReset();
+  });
+  afterEach(() => vi.restoreAllMocks());
+
+  it("re-extracts obligations with rules when the AI returns none", async () => {
+    generateObjectMock.mockResolvedValue({
+      object: { clauses: AI_ANALYSIS.clauses.map((c) => ({ ...c, obligations: [] })) },
+    });
+    const outcome = await analyzeDocument({ documentText: DOC, documentType: "rental" });
+    expect(outcome.degraded).toBe(false);
+    expect(outcome.result.obligations.length).toBeGreaterThan(0);
+  });
+});
+
+describe("compareDocuments AI failure", () => {
+  beforeEach(() => {
+    generateObjectMock.mockReset();
+  });
+  afterEach(() => vi.restoreAllMocks());
+
+  it("returns the rule diff with a degraded flag when the AI rejects", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => undefined);
+    generateObjectMock.mockImplementation(() => {
+      throw new Error("boom");
+    });
+    const base = { id: "A", title: "Base", kind: "rental" as const, text: DOC };
+    const target = { id: "B", title: "Target", kind: "rental" as const, text: `${DOC}\n\n3. Arbitration in Nashik.` };
+    const outcome = await compareDocuments(base, target);
+    expect(outcome.degraded).toBe(true);
+    expect(outcome.message).toBe(FALLBACK_MESSAGE);
+    expect(outcome.diff.diffs.length).toBeGreaterThan(0);
+    expect(outcome.materiality.length).toBeGreaterThan(0);
   });
 });

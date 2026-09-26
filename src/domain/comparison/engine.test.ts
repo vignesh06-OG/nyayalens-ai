@@ -96,3 +96,26 @@ describe("riskLevelForScore", () => {
     expect(riskLevelForScore(90)).toBe("critical");
   });
 });
+
+describe("computeSemanticDiff edge inputs", () => {
+  it("treats symbol-only text as zero similarity and falls back to generic titles", () => {
+    const diff = computeSemanticDiff(
+      { id: "A", title: "", kind: "rental", text: "123 45" },
+      { id: "B", title: "", kind: "rental", text: "67 89" },
+    );
+    expect(diff.diffs.length).toBeGreaterThan(0);
+    expect(diff.diffs.every((d) => d.similarity === 0)).toBe(true);
+    expect(diff.diffs.some((d) => d.summary.includes("version A"))).toBe(true);
+    expect(diff.diffs.some((d) => d.summary.includes("version B"))).toBe(true);
+  });
+});
+
+describe("assessRiskDelta removed exposure", () => {
+  it("notes a deleted risky clause in the movements", () => {
+    const risky =
+      "1. Deposit. The security deposit may be forfeited at the sole discretion of the Landlord with unlimited liability.";
+    const diff = computeSemanticDiff(baseDoc(risky), targetDoc("67 89"));
+    const delta = assessRiskDelta(diff);
+    expect(delta.movements.some((m) => m.note.includes("deleted from the base"))).toBe(true);
+  });
+});

@@ -6,7 +6,8 @@ import {
   generateActionKit,
   prioritizeNegotiationPoints,
 } from "@/domain/actions/engine";
-import { analyzeClauses, segmentClauses } from "@/domain/analysis/engine";
+import { analyzeClauses, assessClauseRisk, segmentClauses } from "@/domain/analysis/engine";
+import type { AnalysisResult, Clause, RiskDimension } from "@/domain/analysis/types";
 
 const DOC = `1. Indemnity. The Tenant shall indemnify and hold harmless the Landlord from unlimited liability at the sole discretion of the Landlord. 2. Payment. The Tenant shall pay Rs 25,000 within 7 days of the due date. 3. Renewal. The lease renews automatically unless either party objects in writing 60 days before expiry.`;
 
@@ -183,5 +184,84 @@ describe("buildComplianceChecklist", () => {
       ),
     );
     expect(generateActionKit(dense).questionsForLawyer.length).toBeLessThanOrEqual(5);
+  });
+});
+
+const DIMS: Record<RiskDimension, number> = {
+  ambiguity: 1,
+  liability: 1,
+  termination: 1,
+  payment: 1,
+  confidentiality: 1,
+  renewal: 1,
+};
+
+describe("askFor dimension playbooks", () => {
+  it.each([
+    ["termination", "cure period"],
+    ["renewal", "auto-renewal"],
+  ] as const)("surfaces the %s playbook when that dimension dominates", (dim, fragment) => {
+    const assessments = analysis.assessments.map((a) => ({
+      ...a,
+      dimensionScores: { ...DIMS, [dim]: 9 },
+    }));
+    const kit = generateActionKit({ ...analysis, assessments });
+    expect(kit.negotiationPoints.some((p) => p.ask.includes(fragment))).toBe(true);
+  });
+});
+
+describe("generateActionKit clause fallbacks", () => {
+  it("uses the clause reference as the title when the title is empty", () => {
+    const clause: Clause = {
+      id: "c1",
+      reference: "Clause 7",
+      title: "",
+      text: "The Tenant shall pay Rs 25,000 within 2 days or the Landlord may forfeit the entire deposit at his sole discretion with unlimited liability.",
+    };
+    const handcrafted: AnalysisResult = {
+      clauses: [clause],
+      assessments: [assessClauseRisk(clause)],
+      heatmap: { clauseIds: ["c1"], dimensions: [], cells: [] },
+      obligations: [],
+      riskScore: 80,
+    };
+    const kit = generateActionKit(handcrafted);
+    expect(kit.negotiationPoints[0]?.title).toBe("Clause 7");
+  });
+});
+
+describe("prioritizeNegotiationPoints tie-breakers", () => {
+  const base = { clauseId: "c1", title: "T", ask: "a", rationale: "r" };
+
+  it("breaks equal priorities by severity weight", () => {
+    const sorted = prioritizeNegotiationPoints([
+      { ...base, id: "low", severity: "low" as const, priority: 5, tradeable: true },
+      { ...base, id: "crit", severity: "critical" as const, priority: 5, tradeable: true },
+    ]);
+    expect(sorted[0]?.id).toBe("crit");
+  });
+
+  it("orders non-tradeable first in both comparator directions", () => {
+    const firm = { ...base, id: "firm", severity: "high" as const, priority: 5, tradeable: false };
+    const soft = { ...base, id: "soft", severity: "high" as const, priority: 5, tradeable: true };
+    expect(prioritizeNegotiationPoints([firm, soft])[0]?.id).toBe("firm");
+    expect(prioritizeNegotiationPoints([soft, firm])[0]?.id).toBe("firm");
+  });
+});
+
+describe("buildComplianceChecklist fallbacks", () => {
+  it("numbers anonymous obligations and dashes unknown clause sources", () => {
+    const handcrafted: AnalysisResult = {
+      clauses: [],
+      assessments: [],
+      heatmap: { clauseIds: [], dimensions: [], cells: [] },
+      obligations: [
+        { id: "", clauseId: "nope", party: "party-a", action: "Pay rent", trigger: null, deadline: "monthly" },
+      ],
+      riskScore: 0,
+    };
+    const items = buildComplianceChecklist(handcrafted);
+    expect(items[0]?.id).toBe("cc-1");
+    expect(items[0]?.sourceClause).toBe("—");
   });
 });

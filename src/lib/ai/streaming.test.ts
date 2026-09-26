@@ -254,3 +254,71 @@ describe("streamCompletion defaults", () => {
     await email.text();
   }, 25_000);
 });
+
+describe("streamCompletion (remaining AI paths with a key)", () => {
+  const savedKey = process.env.OPENAI_API_KEY;
+
+  beforeEach(() => {
+    process.env.OPENAI_API_KEY = "test-key";
+    streamTextMock.mockReset();
+  });
+
+  afterEach(() => {
+    if (savedKey === undefined) {
+      delete process.env.OPENAI_API_KEY;
+    } else {
+      process.env.OPENAI_API_KEY = savedKey;
+    }
+  });
+
+  it("streams simulation cards through the AI for a registered contract", async () => {
+    saveContract(CONTRACT);
+    streamTextMock.mockReturnValue({ toTextStreamResponse: () => new Response("cards") });
+    const res = await streamCompletion({ mode: "simulate", prompt: "Early termination", contractId: "c-1" });
+    await res.text();
+    const args = streamTextMock.mock.calls[0]?.[0] as { model: string };
+    expect(args.model).toBe("openai:gpt-4o");
+    expect(res.headers.get("x-nyayalens-degraded")).toBeNull();
+  });
+
+  it("streams the compare narrative through the AI with both documents in the prompt", async () => {
+    streamTextMock.mockReturnValue({ toTextStreamResponse: () => new Response("compare") });
+    const res = await streamCompletion({
+      mode: "compare",
+      prompt: DOC,
+      docB: `${DOC}\n\n3. Arbitration in Nashik.`,
+    });
+    await res.text();
+    const args = streamTextMock.mock.calls[0]?.[0] as { model: string; prompt: string };
+    expect(args.model).toBe("openai:gpt-4o");
+    expect(args.prompt).toContain("Arbitration in Nashik");
+  });
+
+  it("streams the email draft through the AI with the mini model", async () => {
+    streamTextMock.mockReturnValue({ toTextStreamResponse: () => new Response("email") });
+    const res = await streamCompletion({ mode: "email", prompt: DOC });
+    await res.text();
+    const args = streamTextMock.mock.calls[0]?.[0] as { model: string };
+    expect(args.model).toBe("openai:gpt-4o-mini");
+  });
+});
+
+describe("simulateWithAiStream failure", () => {
+  it("returns null when streamText throws immediately despite a key", async () => {
+    const saved = process.env.OPENAI_API_KEY;
+    process.env.OPENAI_API_KEY = "test-key";
+    streamTextMock.mockReset();
+    streamTextMock.mockImplementation(() => {
+      throw new Error("stream down");
+    });
+    try {
+      expect(await simulateWithAiStream(CONTRACT, "Early termination")).toBeNull();
+    } finally {
+      if (saved === undefined) {
+        delete process.env.OPENAI_API_KEY;
+      } else {
+        process.env.OPENAI_API_KEY = saved;
+      }
+    }
+  });
+});

@@ -95,3 +95,17 @@ describe("simplifyText", () => {
     expect(out.replacements.length).toBeGreaterThan(5);
   });
 });
+
+describe("assessReadability grade bands", () => {
+  it("classifies dense and opaque texts into distinct levels", () => {
+    const dense = assessReadability(
+      "The tenant agrees to pay the monthly rent to the landlord before the fifth day of each month without any deduction or setoff against the same.",
+    );
+    const opaque = assessReadability(
+      "Notwithstanding anything contained hereinbefore to the contrary the aforementioned lessee shall indemnify compensate reimburse and hold harmless the lessor from every liability obligation claim whatsoever arising thereunder.",
+    );
+    expect(dense.level).toBe("dense");
+    expect(opaque.level).toBe("opaque");
+    expect(opaque.fleschKincaidGrade).toBeGreaterThan(dense.fleschKincaidGrade);
+  });
+});

@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
 
+import { analyzeClauses, segmentClauses } from "@/domain/analysis/engine";
 import type { AnalysisResult } from "@/domain/analysis/types";
 import type { Document } from "@/domain/comparison/types";
+import type { Contract as SimContract } from "@/domain/simulation/types";
 import { runNegotiation } from "@/domain/negotiation/engine";
 import { FALLBACK_MESSAGE, fallbackAnalyze } from "@/lib/ai/fallback";
 import {
@@ -147,5 +149,42 @@ describe("composeNegotiationNarrative", () => {
     const text = composeNegotiationNarrative(result, contract.title);
     expect(text).toContain("convergence 20/100");
     expect(text).toContain(NEGOTIATION_MARKERS.verdict);
+  });
+});
+
+describe("composers — empty and minimal inputs", () => {
+  const empty: AnalysisResult = {
+    clauses: [],
+    assessments: [],
+    heatmap: { clauseIds: [], dimensions: [], cells: [] },
+    obligations: [],
+    riskScore: 0,
+  };
+
+  it("composeAnalysisNarrative reports no exposure when nothing is risky", () => {
+    const text = composeAnalysisNarrative(empty);
+    expect(text).toContain(FALLBACK_MESSAGE);
+    expect(text).toContain("No material one-sided exposure");
+    expect(text).toContain("little textual leverage");
+  });
+
+  it("composeEmailDraft omits numbered asks when there are no negotiation points", () => {
+    expect(composeEmailDraft(empty)).not.toContain("1.");
+  });
+
+  it("composeEmailDraft lists a single ask without a second point", () => {
+    const single = analyzeClauses(
+      segmentClauses("2. Deposit. The security deposit may be forfeited at the sole discretion of the Landlord."),
+    );
+    const email = composeEmailDraft(single);
+    expect(email).toContain("1.");
+    expect(email).not.toContain("2.");
+  });
+
+  it("composeSimulationCards degrades gracefully for an empty contract and generic scenario", () => {
+    const bare: SimContract = { id: "bare", title: "Bare", kind: "other", text: "", provisions: [] };
+    const text = composeSimulationCards(bare, "zzz qqq 999");
+    expect(text).toContain(SIM_CARD_MARKERS.consequences);
+    expect(text).toContain("exposure");
   });
 });

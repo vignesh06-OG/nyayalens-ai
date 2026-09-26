@@ -147,3 +147,24 @@ describe("computeRiskScore / analyzeClauses", () => {
     expect(result.riskScore).toBeGreaterThan(0);
   });
 });
+
+describe("extractObligations party detection", () => {
+  it("attributes one-sided duties to the right party", () => {
+    const clauses = segmentClauses(
+      "1. Care. The tenant shall keep the premises clean.\n\n2. Refund. The owner shall refund the deposit.\n\n3. Shared. The tenant and the owner shall share costs.\n\n4. Passive. Payment shall be made monthly.",
+    );
+    const parties = extractObligations(clauses).map((o) => o.party);
+    expect(parties[0]).toBe("party-a");
+    expect(parties[1]).toBe("party-b");
+    expect(parties[2]).toBe("both");
+    expect(parties[3]).toBe("both");
+  });
+});
+
+describe("generateHeatmapData assessment fallback", () => {
+  it("assesses clauses fresh when an empty assessment list is supplied", () => {
+    const heatmap = generateHeatmapData([RISKY], []);
+    expect(heatmap.cells).toHaveLength(RISK_DIMENSIONS.length);
+    expect(heatmap.cells.some((c) => c.score > 0)).toBe(true);
+  });
+});

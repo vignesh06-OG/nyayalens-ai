@@ -15,7 +15,7 @@ import { runNegotiation } from "@/domain/negotiation/engine";
 import type { Contract } from "@/domain/simulation/types";
 import { FALLBACK_MESSAGE } from "@/lib/ai/fallback";
 import { mergeAiNegotiation, negotiateContract } from "@/lib/ai/negotiation";
-import { AiNegotiationOutputSchema } from "@/lib/validation/schema";
+import { AiNegotiationOutputSchema, type AiNegotiationOutput } from "@/lib/validation/schema";
 
 const CONTRACT: Contract = {
   id: "c-neg",
@@ -64,7 +64,9 @@ describe("mergeAiNegotiation", () => {
 });
 
 describe("negotiateContract", () => {
-  beforeEach(() => generateObjectMock.mockReset());
+  beforeEach(() => {
+    generateObjectMock.mockReset();
+  });
   afterEach(() => vi.restoreAllMocks());
 
   it("returns the AI-voiced negotiation without degrading on the happy path", async () => {
@@ -95,5 +97,17 @@ describe("negotiateContract", () => {
     expect(outcome.degraded).toBe(true);
     expect(outcome.message).toBe(FALLBACK_MESSAGE);
     expect(outcome.result).toEqual(runNegotiation(CONTRACT, GOAL));
+  });
+});
+
+describe("mergeAiNegotiation with a short AI payload", () => {
+  it("keeps every rule round verbatim when the model returns none", () => {
+    const rule = runNegotiation(CONTRACT, GOAL);
+    const short: AiNegotiationOutput = { rounds: [], finalSummary: "Settled quickly." };
+    const merged = mergeAiNegotiation(rule, short);
+    expect(merged.rounds).toEqual(rule.rounds);
+    expect(merged.statutoryBasis).toEqual(rule.statutoryBasis);
+    expect(merged.finalSummary).toContain("Settled quickly.");
+    expect(merged.finalSummary).toContain("Not legal advice");
   });
 });
