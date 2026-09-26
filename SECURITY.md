@@ -8,7 +8,7 @@ The same headers are re-applied to every streaming/API response via `applySecuri
 
 ### CSP rationale (honest trade-offs)
 
-- `'unsafe-eval` is **dev-only** (`NODE_ENV !== "production"`): the webpack HMR runtime evaluates generated module code. The production bundle never ships it — verified by `curl -I` against the live deploy.
+- The CSP is **unconditional** — the identical strict policy (no `unsafe-eval`, plus `frame-ancestors 'none'; object-src 'none'; base-uri 'self'`) ships in dev and prod with zero environment branching in `headers()`. Webpack dev chunks use `eval()` source-map wrappers, so for dev-time HMR run `npx next dev --turbo` (Turbopack serves eval-free modules). Production bundles never ship eval — verified by `curl -I` against the live deploy and by chunk inspection.
 - `script-src 'unsafe-inline'` remains in production: the Next.js App Router inlines flight-data bootstrap scripts and this app runs no nonce middleware. Removing it would require a custom server or middleware nonce pipeline — recorded as an accepted trade-off, not an oversight.
 
 ## Application guardrails
@@ -27,7 +27,7 @@ The same headers are re-applied to every streaming/API response via `applySecuri
 | Package | Severity | Why it stays pinned | Compensating mitigation |
 | --- | --- | --- | --- |
 | `next` | critical | Fixed only in `next@16.x` — a major jump that breaks the App Router pin this project is built and tested on | No `middleware.ts` exists: all request handling is static prerendered pages plus isolated API routes; every route enforces method checks (405), Zod validation, rate limiting, and sanitized errors |
-| `jsondiffpatch` (via `ai@4`) | high | Fixed in `ai@6`, which removes `useCompletion` — five UI sections depend on it | Diff rendering is server-side over already-sanitized (50k-char cap) plain text; strict CSP with no `unsafe-eval` ships in production |
+| `jsondiffpatch` (via `ai@4`) | high | Fixed in `ai@6`, which removes `useCompletion` — five UI sections depend on it | Diff rendering is server-side over already-sanitized (50k-char cap) plain text; strict CSP with no `unsafe-eval` on every response (dev + prod) |
 | `postcss` | high | Build-time CSS processing only — never executes at runtime | Build runs in CI on pinned lockfile (`npm ci`) |
 | `@ai-sdk/provider-utils` | moderate | Same `ai@4` pin as above | 30s `AI_TIMEOUT_MS` and input sanitization bound the uncontrolled-resource path |
 

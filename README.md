@@ -305,7 +305,7 @@ git clone https://github.com/vignesh06-OG/nyayalens-ai.git
 cd nyayalens-ai
 npm ci
 cp .env.example .env        # OPENAI_API_KEY optional — fallback engines work without it
-npm run dev                 # http://localhost:3000
+npm run dev                 # http://localhost:3000 (dev HMR under the strict CSP: npx next dev --turbo)
 
 npm test                    # 254 tests, 24 suites
 npm run test:coverage       # enforced thresholds 98/90/98/88
