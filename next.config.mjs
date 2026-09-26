@@ -13,6 +13,25 @@ const scriptSrc = isDev
 const nextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
+
+  // --- Production efficiency (surgical repair; security headers below untouched) ---
+  // No browser source maps in production: smaller artifacts, no source disclosure.
+  productionBrowserSourceMaps: false,
+  // SWC minification (explicit).
+  swcMinify: true,
+  // Strip console.* from production builds EXCEPT console.error — the API
+  // routes log failures deliberately and those lines must survive.
+  compiler: {
+    removeConsole: process.env.NODE_ENV === "production" ? { exclude: ["error"] } : false,
+  },
+  // Sub-path tree-shaking for barrel-style packages (lucide/framer ship huge
+  // index modules; this imports only the icons/components actually used).
+  experimental: {
+    optimizePackageImports: ["lucide-react", "framer-motion", "clsx", "tailwind-merge"],
+  },
+  // Compress server responses.
+  compress: true,
+
   async headers() {
     return [
       {
