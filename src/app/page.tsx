@@ -6,10 +6,12 @@ import dynamic from "next/dynamic";
  * (spacers preserve layout while islands hydrate — no CLS).
  */
 const HeroSection = dynamic(() => import("@/components/sections/HeroSection"), {
+  ssr: true,
   loading: () => <div className="min-h-[85vh]" aria-hidden="true" />,
 });
 
 const Workspace = dynamic(() => import("@/components/sections/Workspace"), {
+  ssr: true,
   loading: () => <div className="min-h-[60vh]" aria-hidden="true" />,
 });
 

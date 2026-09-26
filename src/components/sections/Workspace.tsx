@@ -12,21 +12,27 @@ import type { AnalysisSectionResult } from "./AdversarialAnalysis";
  * while still SSR-rendering their copy; spacers prevent CLS while chunks load.
  */
 const AdversarialAnalysisSection = dynamic(() => import("./AdversarialAnalysis"), {
+  ssr: true,
   loading: () => <Skeleton className="mx-auto my-24 h-96 max-w-6xl" />,
 });
 const ScenarioSimulatorSection = dynamic(() => import("./ScenarioSimulator"), {
+  ssr: true,
   loading: () => <Skeleton className="mx-auto my-24 h-64 max-w-6xl" />,
 });
 const PlainLanguageSection = dynamic(() => import("./PlainLanguage"), {
+  ssr: true,
   loading: () => <Skeleton className="mx-auto my-24 h-64 max-w-6xl" />,
 });
 const ActionKitSection = dynamic(() => import("./ActionKit"), {
+  ssr: true,
   loading: () => <Skeleton className="mx-auto my-24 h-64 max-w-6xl" />,
 });
 const ComparatorSection = dynamic(() => import("./Comparator"), {
+  ssr: true,
   loading: () => <Skeleton className="mx-auto my-24 h-64 max-w-6xl" />,
 });
 const NegotiationSection = dynamic(() => import("./NegotiationMatrix"), {
+  ssr: true,
   loading: () => <Skeleton className="mx-auto my-24 h-64 max-w-6xl" />,
 });
 

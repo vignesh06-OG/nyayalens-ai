@@ -104,7 +104,8 @@ export default function HeroSection() {
           </h1>
 
           <p className="rise rise-3 max-w-2xl text-base leading-relaxed text-slate-400 md:text-lg">
-            Upload any legal document — contract, lease, NDA, or terms of service. GenAI surfaces
+            Upload any legal document — rental contracts, employment contracts, leases, NDAs, or
+            terms of service. NyayaLens AI is GenAI legal assistance for real people: it surfaces
             the clauses that matter, maps your risks and obligations from both sides of the table,
             and returns a risk heatmap, what-if simulations, and ready-to-use action kits.
           </p>
