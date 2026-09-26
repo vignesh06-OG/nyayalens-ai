@@ -90,7 +90,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   NyayaLens AI
                 </p>
                 <p className="text-xs text-slate-500">
-                  GenAI legal intelligence · Phase 1 visual foundation
+                  GenAI legal intelligence for real people
                 </p>
               </div>
             </div>
@@ -104,6 +104,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               ))}
             </ul>
           </div>
+          <p className="mx-auto w-full max-w-7xl border-t border-white/5 px-6 pb-8 pt-6 text-xs leading-relaxed text-slate-500">
+            NyayaLens AI provides informational assistance, not legal advice.
+          </p>
         </footer>
       </body>
     </html>

@@ -80,7 +80,7 @@ export const keywordAlignment: readonly KeywordAlignment[] = [
     whyItAligns:
       "People need answers from their documents, not generic legal trivia — every answer is anchored to the registered contract and its provisions.",
     measurableOutcome:
-      "Answers stream word-by-word and cite implicated provisions plus statute anchors (ICA/BNS/TPA §-numbers); unknown documents are rejected with 404 rather than hallucinated.",
+      "Answers stream word-by-word and cite implicated provisions plus statute anchors (Indian Contract Act 1872 / Bharatiya Nyaya Sanhita 2023 / Transfer of Property Act 1882 §-numbers); unknown documents are rejected with 404 rather than hallucinated.",
     module: "ScenarioSimulatorSection",
     path: "src/components/sections/ScenarioSimulator.tsx",
     status: "complete",
@@ -194,7 +194,7 @@ export const alignmentManifest: readonly ChallengeAlignment[] = [
     module: "Verification harness",
     path: "tests/ · TESTING.md · EVALUATION.md",
     status: "complete",
-    note: "254 Vitest tests across 23 suites (unit, cross-engine pipeline journeys, docs drift guard); coverage thresholds 98/90/98/98 enforced, measured 99.06/94.91/99.47/99.03. Statutory citations are rule-pinned — the AI layer re-voices language but can never invent law.",
+    note: "254 Vitest tests across 24 suites (unit, cross-engine pipeline journeys, docs drift guard); coverage thresholds 98/90/98/98 enforced, measured 99.06/94.91/99.47/99.03. Statutory citations are rule-pinned — the AI layer re-voices language but can never invent law.",
   },
   {
     id: "eng-craft",
@@ -214,7 +214,8 @@ export const alignmentManifest: readonly ChallengeAlignment[] = [
   },
   {
     id: "eng-legal",
-    criterion: "Indian-law grounding (BNS, ICA, TPA, RERA, CPA, IT Act)",
+    criterion:
+      "Indian-law grounding (Bharatiya Nyaya Sanhita 2023, Indian Contract Act 1872, Transfer of Property Act 1882, Real Estate (Regulation and Development) Act 2016, Consumer Protection Act 2019, Information Technology Act 2000)",
     module: "Indian provisions database",
     path: "src/domain/legal/indian-provisions.ts",
     status: "complete",
